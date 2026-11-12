@@ -29,6 +29,7 @@ h1{ font-size:20px; font-weight:700; margin:8px 0 2px; letter-spacing:.01em; }
 .state{ color:var(--mut); font-size:13px; margin-top:2px; margin-bottom:14px; }
 .cue{ font-size:20px; line-height:1.4; max-width:430px; margin:0 auto 14px; min-height:56px; color:var(--txt); }
 .controls{ display:flex; gap:10px; justify-content:center; margin:6px 0; }
+.ctl:disabled{ opacity:.45; }
 .ctl{ background:var(--panel); color:var(--txt); border:1px solid var(--line); border-radius:16px; padding:12px 24px; min-height:52px; min-width:130px; font:inherit; font-size:16px; }
 .ctl.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:600; }
 .wake, .net{ color:var(--mut); font-size:12px; margin-top:6px; text-align:center; }
@@ -376,13 +377,16 @@ function tick(){
   if(s.left <= 10 && s.left > 0 && !tenWarned[s.i]){
     tenWarned[s.i] = true;
     beep();
-    speak('Diez segundos.');
+    const busy = ('speechSynthesis' in window) && (speechSynthesis.speaking || speechSynthesis.pending);
+    if(busy){ logLine('🔔 Diez segundos (solo beep, la voz sigue con la orden).'); }
+    else speak('Diez segundos.');
   }
   $('time').textContent = fmt(rem);
   $('fill').style.width = Math.min(100, t/total*100) + '%';
 }
 
 function startSession(s){
+  $('test').disabled = true;
   cur = s; running = false; done = false; elapsedBase = 0; segAnnounced = -1; lastCueMin = -1; tenWarned = {};
   clearInterval(timer);
   $('log').innerHTML = '';
@@ -404,11 +408,13 @@ function start(){
 function stop(manual = true){
   if(running) elapsedBase += (Date.now()-startTs)/1000;
   running = false; clearInterval(timer);
+  if('speechSynthesis' in window) speechSynthesis.cancel();
   $('state').textContent = manual ? 'En pausa' : $('state').textContent;
   $('start').textContent = 'Reanudar';
   if(manual) releaseWake();
 }
 function finish(){
+  $('test').disabled = false;
   stop(false); done = true;
   $('state').textContent = 'Completada'; $('start').textContent = 'Empezar';
   releaseWake();
@@ -424,6 +430,7 @@ function pushHistory(secs){
 }
 $('start').onclick = () => running ? stop(true) : start();
 $('quit').onclick = () => {
+  $('test').disabled = false;
   const t = totalElapsed();
   const wasRunning = running || elapsedBase > 0;
   if(running) stop(true);
