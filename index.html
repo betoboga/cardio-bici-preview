@@ -650,14 +650,14 @@ function sceneFrame(ts){
   SC.raf = requestAnimationFrame(sceneFrame);
   if(!SC.last) SC.last = ts;
   if(ts - SC.last < 32) return;
-  const dt = Math.min(.1, (ts - SC.last)/1000); SC.last = ts;
+  const dt = Math.min(.25, (ts - SC.last)/1000); SC.last = ts;
   const SP = [0, 62, 96, 140], CAD = [0, .95, 1.2, 1.5];
   const tgtV = running ? SP[SC.lvl] * (SC.climb ? .72 : 1) : 0;
   const tgtC = running ? CAD[SC.lvl] * (SC.climb ? .85 : 1) : 0;
   const kk = 1 - Math.exp(-dt*2.2);
   SC.speed += (tgtV - SC.speed)*kk;
   SC.cad = (SC.cad||0) + (tgtC - (SC.cad||0))*kk;
-  SC.slope += ((SC.climb && running ? .13 : 0) - SC.slope)*(1 - Math.exp(-dt*1.6));
+  SC.slope += ((SC.climb ? .17 : 0) - SC.slope)*(1 - Math.exp(-dt*2.5));
   SC.dist += SC.speed*dt; SC.wheel += SC.speed*dt/32; SC.crank += SC.cad*dt*Math.PI*2;
   // progreso
   let p = 0;
