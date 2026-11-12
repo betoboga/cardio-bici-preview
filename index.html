@@ -69,7 +69,8 @@ input.num{ width:64px; text-align:center; }
       <button class='ctl on' id='newbtn' style='flex:1'>Crear sesión</button>
     </div>
     <div class='note'>«Libre» es un cronómetro con avisos cada 5 minutos, sin fin. «Prueba de voz» dura 1 minuto y comprueba que todo suena.</div>
-    <div class='note'>Guía de esfuerzo: suave = puedes hablar e incluso cantar; moderado = puedes hablar pero no cantar; fuerte = solo frases cortas. Los cambios de resistencia son relativos a tu bici: sube o baja un punto desde donde estés. Ponerte de pie es siempre opcional. Si tienes un plan de tu entrenador, ese manda.</div>
+    <div class='note'>Antes de empezar: ajusta el sillín (rodilla ligeramente flexionada con el pedal abajo), sujeta los pies, manos cómodas, ten agua cerca y ventila la habitación.</div>
+    <div class='note'>Guía de esfuerzo: suave = puedes hablar e incluso cantar; moderado = puedes hablar pero no cantar; fuerte = solo frases cortas, siempre controlado. La resistencia se ajusta en relación a tu bici, sin números fijos. Pedalear de pie es opcional y solo si tu bici está diseñada para ello; puedes hacer cualquier sesión entera sentado. Para ante dolor, mareo o malestar inusual. Si tienes un plan de tu entrenador, ese manda.</div>
   </div>
   <div class='card hidden' id='histcard'>
     <h2>Historial</h2>
@@ -136,52 +137,45 @@ function durEs(sec){
 const TEST = { name:'Prueba de voz · 1 min', builtin:true, segs:[{name:'Prueba de voz', secs:60, cue:'Prueba de voz. Un minuto.'}] };
 const LIBRE = { name:'Libre', builtin:true, free:true };
 const G = (name, secs, cue) => ({name, secs, cue});
+const CUE_FUERTE = 'Sentado. Ajusta la resistencia para un minuto fuerte, sin ir a tope; acelera solo si mantienes el control y no rebotas.';
+const CUE_RECUPERA = 'Siéntate si estabas de pie. Baja la resistencia y afloja el ritmo; pedalea suave dos minutos.';
+const CUE_SUBIDA = 'Sentado. Sube gradualmente la resistencia hasta una cuesta exigente pero controlada; mantén pedaleo fluido, sin atrancarte.';
+const CUE_DEPIE = 'Solo si tu bici está diseñada para pedalear de pie y estás estable: añade soporte suficiente con la resistencia, manos apoyadas, levántate con suavidad treinta segundos. Si no, sigue sentado.';
+const CUE_SIENTATE = 'Siéntate con suavidad si estabas de pie. Sigue a ritmo moderado, sentado; puedes hablar pero no cantar.';
+const CUE_POSTURA = 'Si quieres, cambia de postura treinta segundos. Levántate solo si tu bici lo permite y con soporte de resistencia; si no, sigue sentado.';
+const CUE_CALMA = 'Baja la resistencia y el ritmo poco a poco, sin detenerte de golpe. Si notas dolor, mareo o malestar inusual, para el ejercicio.';
 const GUIDED = [
- { name:'Suave · 20 min', builtin:true, desc:'Continua y tranquila', segs:[
-   G('Calentamiento', 240, 'Empezamos suave, sentado, resistencia baja. Cuatro minutos para entrar en calor.'),
-   G('Pedaleo continuo', 600, 'Sube un poco la resistencia. Ritmo moderado: puedes hablar, pero no cantar. Diez minutos sentado.'),
-   G('De pie suave', 60, 'Si te ves seguro, ponte de pie un minuto. Si no, sigue sentado.'),
-   G('Sentado', 180, 'Siéntate y recupera el ritmo moderado. Tres minutos.'),
-   G('Vuelta a la calma', 120, 'Baja la resistencia. Dos minutos suaves para terminar.')]
+ { name:'Suave · 20 min', builtin:true, desc:'Continua y tranquila, todo sentado', segs:[
+   G('Calentamiento', 300, 'Empezamos sentados, resistencia baja, subiendo el ritmo poco a poco. Cinco minutos de calentamiento.'),
+   G('Cómodo', 600, 'Sentado, ritmo cómodo: puedes mantener una conversación. Diez minutos.'),
+   G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
- { name:'Intervalos · 25 min', builtin:true, desc:'1 min fuerte, 2 suaves', segs:[
-   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, resistencia baja.'),
-   G('Fuerte 1', 60, 'Sube la resistencia y acelera. Un minuto fuerte: solo frases cortas.'),
-   G('Recupera 1', 120, 'Baja la resistencia. Dos minutos suaves.'),
-   G('Fuerte 2', 60, 'Otra vez fuerte. Un minuto.'),
-   G('Recupera 2', 120, 'Suave. Dos minutos.'),
-   G('Fuerte 3', 60, 'Fuerte. Un minuto. Si quieres, de pie.'),
-   G('Recupera 3', 120, 'Sentado, suave. Dos minutos.'),
-   G('Fuerte 4', 60, 'Fuerte. Un minuto.'),
-   G('Recupera 4', 120, 'Suave. Dos minutos.'),
-   G('Fuerte 5', 60, 'Fuerte. Un minuto más.'),
-   G('Recupera 5', 120, 'Suave. Dos minutos.'),
-   G('Fuerte 6', 60, 'El último fuerte. Un minuto.'),
-   G('Recupera 6', 120, 'Suave. Dos minutos.'),
-   G('Vuelta a la calma', 120, 'Resistencia baja. Dos minutos suaves para terminar.')]
+ { name:'Intervalos · 25 min', builtin:true, desc:'5× 1 min fuerte sentado + 2 suaves', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, resistencia baja, en progresión.'),
+   G('Fuerte 1', 60, CUE_FUERTE), G('Suave 1', 120, CUE_RECUPERA),
+   G('Fuerte 2', 60, CUE_FUERTE), G('Suave 2', 120, CUE_RECUPERA),
+   G('Fuerte 3', 60, CUE_FUERTE), G('Suave 3', 120, CUE_RECUPERA),
+   G('Fuerte 4', 60, CUE_FUERTE), G('Suave 4', 120, CUE_RECUPERA),
+   G('Fuerte 5', 60, CUE_FUERTE), G('Suave 5', 120, CUE_RECUPERA),
+   G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
- { name:'Colinas · 30 min', builtin:true, desc:'Resistencia y de pie', segs:[
-   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave.'),
-   G('Subida 1', 180, 'Sube la resistencia como una cuesta. Tres minutos. Ponte de pie si te ves seguro.'),
-   G('Llano 1', 120, 'Baja la resistencia, sentado. Dos minutos suaves.'),
-   G('Subida 2', 180, 'Otra subida, tres minutos. De pie o sentado, como prefieras.'),
-   G('Llano 2', 120, 'Baja la resistencia. Dos minutos suaves.'),
-   G('Subida 3', 180, 'Tercera subida. Tres minutos.'),
-   G('Llano 3', 120, 'Suave, sentado. Dos minutos.'),
-   G('Subida 4', 180, 'Última subida. Tres minutos.'),
-   G('Llano 4', 120, 'Suave, sentado. Dos minutos.'),
-   G('Vuelta a la calma', 300, 'Resistencia baja. Cinco minutos suaves para terminar.')]
+ { name:'Colinas · 30 min', builtin:true, desc:'4× subida de 3 min, de pie opcional 30 s', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
+   G('Subida 1', 150, CUE_SUBIDA), G('De pie opcional 1', 30, CUE_DEPIE), G('Llano 1', 120, CUE_RECUPERA),
+   G('Subida 2', 150, CUE_SUBIDA), G('De pie opcional 2', 30, CUE_DEPIE), G('Llano 2', 120, CUE_RECUPERA),
+   G('Subida 3', 150, CUE_SUBIDA), G('De pie opcional 3', 30, CUE_DEPIE), G('Llano 3', 120, CUE_RECUPERA),
+   G('Subida 4', 150, CUE_SUBIDA), G('De pie opcional 4', 30, CUE_DEPIE), G('Llano 4', 120, CUE_RECUPERA),
+   G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
- { name:'Fondo · 45 min', builtin:true, desc:'Larga y continua', segs:[
-   G('Calentamiento', 300, 'Calentamiento cinco minutos, suave.'),
-   G('Continuo 1', 600, 'Ritmo moderado y constante, sentado. Diez minutos.'),
-   G('De pie 1', 90, 'Noventa segundos de pie si te ves seguro. Misma resistencia.'),
-   G('Continuo 2', 510, 'Sentado, ritmo moderado.'),
-   G('De pie 2', 90, 'De pie noventa segundos.'),
-   G('Continuo 3', 510, 'Sentado, moderado. Ya queda menos.'),
-   G('De pie 3', 60, 'Un minuto de pie.'),
-   G('Continuo 4', 300, 'Cinco minutos moderados.'),
-   G('Vuelta a la calma', 240, 'Baja la resistencia. Cuatro minutos suaves para terminar.')]
+ { name:'Fondo · 45 min', builtin:true, desc:'Larga y continua, sentada', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
+   G('Continuo 1', 390, 'Sentado, ritmo moderado y constante; puedes hablar pero no cantar.'),
+   G('Postura 1', 30, CUE_POSTURA),
+   G('Continuo 2', 390, CUE_SIENTATE), G('Postura 2', 30, CUE_POSTURA),
+   G('Continuo 3', 390, CUE_SIENTATE), G('Postura 3', 30, CUE_POSTURA),
+   G('Continuo 4', 390, CUE_SIENTATE), G('Postura 4', 30, CUE_POSTURA),
+   G('Continuo 5', 390, CUE_SIENTATE), G('Postura 5', 30, CUE_POSTURA),
+   G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  }
 ];
 let sessions = [];
