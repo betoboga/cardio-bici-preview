@@ -27,6 +27,7 @@ h1{ font-size:20px; font-weight:700; margin:8px 0 2px; letter-spacing:.01em; }
 .bar{ width:100%; max-width:340px; height:6px; background:#2c2a24; border-radius:3px; margin:10px 0 4px; }
 .fill{ height:100%; background:var(--yel); border-radius:3px; width:0; transition:width .3s linear; }
 .state{ color:var(--mut); font-size:13px; margin-top:2px; margin-bottom:14px; }
+.cue{ font-size:20px; line-height:1.4; max-width:430px; margin:0 auto 14px; min-height:56px; color:var(--txt); }
 .controls{ display:flex; gap:10px; justify-content:center; margin:6px 0; }
 .ctl{ background:var(--panel); color:var(--txt); border:1px solid var(--line); border-radius:16px; padding:12px 24px; min-height:52px; min-width:130px; font:inherit; font-size:16px; }
 .ctl.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:600; }
@@ -68,6 +69,7 @@ input.num{ width:64px; text-align:center; }
     <div class='row' style='margin-top:10px'>
       <button class='ctl on' id='newbtn' style='flex:1'>Crear sesión</button>
     </div>
+    <div class='note'><label style='display:flex;align-items:center;gap:10px;cursor:pointer'><input type='checkbox' id='standcb' style='width:22px;height:22px;accent-color:#f5c518'> Mi bici permite pedalear de pie y quiero esos avisos</label></div>
     <div class='note'>«Libre» es un cronómetro con avisos cada 5 minutos, sin fin. «Prueba de voz» dura 1 minuto y comprueba que todo suena.</div>
     <div class='note'>Antes de empezar: ajusta el sillín (rodilla ligeramente flexionada con el pedal abajo), sujeta los pies, manos cómodas, ten agua cerca y ventila la habitación.</div>
     <div class='note'>Guía de esfuerzo: suave = puedes hablar e incluso cantar; moderado = puedes hablar pero no cantar; fuerte = solo frases cortas, siempre controlado. La resistencia se ajusta en relación a tu bici, sin números fijos. Pedalear de pie es opcional y solo si tu bici está diseñada para ello; puedes hacer cualquier sesión entera sentado. Para ante dolor, mareo o malestar inusual. Si tienes un plan de tu entrenador, ese manda.</div>
@@ -96,6 +98,7 @@ input.num{ width:64px; text-align:center; }
   <div class='time' id='time'>00:00</div>
   <div class='bar'><div class='fill' id='fill'></div></div>
   <div class='state' id='state'>Lista</div>
+  <div class='cue' id='cue'></div>
   <div class='controls'>
     <button class='ctl on' id='start'>Empezar</button>
     <button class='ctl' id='quit'>Terminar</button>
@@ -136,14 +139,15 @@ function durEs(sec){
 /* ---- datos ---- */
 const TEST = { name:'Prueba de voz · 1 min', builtin:true, segs:[{name:'Prueba de voz', secs:60, cue:'Prueba de voz. Un minuto.'}] };
 const LIBRE = { name:'Libre', builtin:true, free:true };
-const G = (name, secs, cue) => ({name, secs, cue});
+const G = (name, secs, cue, stand) => ({name, secs, cue, stand: !!stand});
 const CUE_FUERTE = 'Sentado. Ajusta la resistencia para un minuto fuerte, sin ir a tope; acelera solo si mantienes el control y no rebotas.';
 const CUE_RECUPERA = 'Siéntate si estabas de pie. Baja la resistencia y afloja el ritmo; pedalea suave dos minutos.';
 const CUE_SUBIDA = 'Sentado. Sube gradualmente la resistencia hasta una cuesta exigente pero controlada; mantén pedaleo fluido, sin atrancarte.';
 const CUE_DEPIE = 'Solo si tu bici está diseñada para pedalear de pie y estás estable: añade soporte suficiente con la resistencia, manos apoyadas, levántate con suavidad treinta segundos. Si no, sigue sentado.';
 const CUE_SIENTATE = 'Siéntate con suavidad si estabas de pie. Sigue a ritmo moderado, sentado; puedes hablar pero no cantar.';
 const CUE_POSTURA = 'Si quieres, cambia de postura treinta segundos. Levántate solo si tu bici lo permite y con soporte de resistencia; si no, sigue sentado.';
-const CUE_CALMA = 'Baja la resistencia y el ritmo poco a poco, sin detenerte de golpe. Si notas dolor, mareo o malestar inusual, para el ejercicio.';
+const CUE_CALMA = 'Siéntate con suavidad si estabas de pie. Baja la resistencia y el ritmo poco a poco, sin detenerte de golpe. Si notas dolor, mareo o malestar inusual, para el ejercicio.';
+const CUE_SENTADO30 = 'Sigue sentado. Mantén el ritmo y la resistencia; treinta segundos.';
 const GUIDED = [
  { name:'Suave · 20 min', builtin:true, desc:'Continua y tranquila, todo sentado', segs:[
    G('Calentamiento', 300, 'Empezamos sentados, resistencia baja, subiendo el ritmo poco a poco. Cinco minutos de calentamiento.'),
@@ -161,20 +165,20 @@ const GUIDED = [
  },
  { name:'Colinas · 30 min', builtin:true, desc:'4× subida de 3 min, de pie opcional 30 s', segs:[
    G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
-   G('Subida 1', 150, CUE_SUBIDA), G('De pie opcional 1', 30, CUE_DEPIE), G('Llano 1', 120, CUE_RECUPERA),
-   G('Subida 2', 150, CUE_SUBIDA), G('De pie opcional 2', 30, CUE_DEPIE), G('Llano 2', 120, CUE_RECUPERA),
-   G('Subida 3', 150, CUE_SUBIDA), G('De pie opcional 3', 30, CUE_DEPIE), G('Llano 3', 120, CUE_RECUPERA),
-   G('Subida 4', 150, CUE_SUBIDA), G('De pie opcional 4', 30, CUE_DEPIE), G('Llano 4', 120, CUE_RECUPERA),
+   G('Subida 1', 150, CUE_SUBIDA), G('De pie opcional 1', 30, CUE_DEPIE, true), G('Llano 1', 120, CUE_RECUPERA),
+   G('Subida 2', 150, CUE_SUBIDA), G('De pie opcional 2', 30, CUE_DEPIE, true), G('Llano 2', 120, CUE_RECUPERA),
+   G('Subida 3', 150, CUE_SUBIDA), G('De pie opcional 3', 30, CUE_DEPIE, true), G('Llano 3', 120, CUE_RECUPERA),
+   G('Subida 4', 150, CUE_SUBIDA), G('De pie opcional 4', 30, CUE_DEPIE, true), G('Llano 4', 120, CUE_RECUPERA),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
  { name:'Fondo · 45 min', builtin:true, desc:'Larga y continua, sentada', segs:[
    G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
    G('Continuo 1', 390, 'Sentado, ritmo moderado y constante; puedes hablar pero no cantar.'),
-   G('Postura 1', 30, CUE_POSTURA),
-   G('Continuo 2', 390, CUE_SIENTATE), G('Postura 2', 30, CUE_POSTURA),
-   G('Continuo 3', 390, CUE_SIENTATE), G('Postura 3', 30, CUE_POSTURA),
-   G('Continuo 4', 390, CUE_SIENTATE), G('Postura 4', 30, CUE_POSTURA),
-   G('Continuo 5', 390, CUE_SIENTATE), G('Postura 5', 30, CUE_POSTURA),
+   G('Postura 1', 30, CUE_POSTURA, true),
+   G('Continuo 2', 390, CUE_SIENTATE), G('Postura 2', 30, CUE_POSTURA, true),
+   G('Continuo 3', 390, CUE_SIENTATE), G('Postura 3', 30, CUE_POSTURA, true),
+   G('Continuo 4', 390, CUE_SIENTATE), G('Postura 4', 30, CUE_POSTURA, true),
+   G('Continuo 5', 390, CUE_SIENTATE), G('Postura 5', 30, CUE_POSTURA, true),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  }
 ];
@@ -289,8 +293,10 @@ function beep(){
     setTimeout(()=>{ o.stop(); ctx.close(); }, 350);
   }catch(e){}
 }
-function speak(text){
+function speak(text, big){
+  if(big) $('cue').textContent = text;
   if(!('speechSynthesis' in window)){ beep(); logLine('✕ Sin voz en este navegador: «'+text+'»'); return; }
+  speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'es-ES'; u.rate = 1.02;
   const v = speechSynthesis.getVoices().find(x => x.name === voiceName);
@@ -315,6 +321,10 @@ function loadVoices(){
   if(!voiceName && list.length){ const pref = es.find(v => v.localService) || es[0]; if(pref) voiceName = pref.name; }
 }
 if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+function allowStand(){ return localStorage.getItem('cb_stand') === '1'; }
+$('standcb').checked = allowStand();
+$('standcb').onchange = (e) => localStorage.setItem('cb_stand', e.target.checked ? '1' : '0');
 
 async function requestWake(){
   if(!('wakeLock' in navigator)){ $('wake').textContent = 'Pantalla: no se puede mantener encendida desde aquí'; return; }
@@ -346,7 +356,7 @@ function tick(){
     const m = Math.floor(t/60);
     if(m >= 5 && m % 5 === 0 && m !== lastCueMin){
       lastCueMin = m;
-      speak('Llevas ' + durEs(m*60) + '.');
+      speak('Llevas ' + durEs(m*60) + '.', true);
     }
     return;
   }
@@ -356,10 +366,12 @@ function tick(){
   if(!s){ finish(); return; }
   if(s.i !== segAnnounced){
     segAnnounced = s.i;
-    $('segname').textContent = s.seg.name;
+    const seated = s.seg.stand && !allowStand();
+    $('segname').textContent = seated ? 'Sigue sentado' : s.seg.name;
     const nx = cur.segs[s.i+1];
-    $('segnext').textContent = nx ? ('Siguiente: ' + nx.name + ' · ' + fmt(nx.secs)) : 'Último tramo';
-    speak(s.seg.cue ? s.seg.cue : (s.seg.name + '. ' + durEs(s.seg.secs) + '.'));
+    const nxName = nx && nx.stand && !allowStand() ? 'Sigue sentado' : (nx ? nx.name : null);
+    $('segnext').textContent = nx ? ('Siguiente: ' + nxName + ' · ' + fmt(nx.secs)) : 'Último tramo';
+    speak(seated ? CUE_SENTADO30 : (s.seg.cue ? s.seg.cue : (s.seg.name + '. ' + durEs(s.seg.secs) + '.')), true);
   }
   if(s.left <= 10 && s.left > 0 && !tenWarned[s.i]){
     tenWarned[s.i] = true;
@@ -400,7 +412,7 @@ function finish(){
   stop(false); done = true;
   $('state').textContent = 'Completada'; $('start').textContent = 'Empezar';
   releaseWake();
-  speak('Sesión completada.');
+  speak('Sesión completada.', true);
   pushHistory(sessDur(cur));
 }
 function pushHistory(secs){
@@ -416,7 +428,7 @@ $('quit').onclick = () => {
   const wasRunning = running || elapsedBase > 0;
   if(running) stop(true);
   if(cur && cur.free && wasRunning && t >= 60){
-    speak('Sesión terminada. ' + durEs(Math.round(t/60)*60) + '.');
+    speak('Sesión terminada. ' + durEs(Math.round(t/60)*60) + '.', true);
     pushHistory(t);
   }
   running = false; clearInterval(timer); releaseWake();
