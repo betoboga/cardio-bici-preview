@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang='es'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
+<meta name='theme-color' content='#141310'>
+<meta name='mobile-web-app-capable' content='yes'>
+<meta name='apple-mobile-web-app-capable' content='yes'>
+<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'>
+<link rel='manifest' href='manifest.webmanifest'>
+<link rel='icon' href='1-icon-192.png'>
+<link rel='apple-touch-icon' href='1-icon-192.png'>
+<title>Cardio Bici</title>
+<style>
+:root{ --bg:#141310; --panel:#1d1b16; --line:#3a372f; --txt:#f4f1e8; --mut:#b9b3a4; --yel:#f5c518; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--bg); color:var(--txt); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; }
+body{ min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:16px; }
+h1{ font-size:20px; font-weight:700; margin:8px 0 2px; letter-spacing:.01em; }
+.sub{ color:var(--mut); font-size:13px; margin-bottom:14px; text-align:center; }
+.tabs{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; justify-content:center; }
+.tab{ background:transparent; color:var(--mut); border:1px solid var(--line); border-radius:999px; padding:9px 16px; font:inherit; font-size:14px; }
+.tab.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:600; }
+.time{ font-size:96px; line-height:1; font-weight:800; color:var(--yel); font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+.segname{ font-size:20px; font-weight:700; margin-top:6px; min-height:24px; }
+.segnext{ color:var(--mut); font-size:13px; margin-top:2px; min-height:16px; }
+.bar{ width:100%; max-width:340px; height:6px; background:#2c2a24; border-radius:3px; margin:10px 0 4px; }
+.fill{ height:100%; background:var(--yel); border-radius:3px; width:0; transition:width .3s linear; }
+.state{ color:var(--mut); font-size:13px; margin-top:2px; margin-bottom:14px; }
+.controls{ display:flex; gap:10px; justify-content:center; margin:6px 0; }
+.ctl{ background:var(--panel); color:var(--txt); border:1px solid var(--line); border-radius:16px; padding:12px 24px; min-height:52px; min-width:130px; font:inherit; font-size:16px; }
+.ctl.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:600; }
+.wake, .net{ color:var(--mut); font-size:12px; margin-top:6px; text-align:center; }
+.net.ok{ color:var(--yel); }
+.card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; width:100%; max-width:420px; margin-top:22px; }
+.card h2{ font-size:14px; margin:0 0 10px; color:var(--mut); font-weight:600; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.chip{ background:transparent; color:var(--txt); border:1px solid var(--line); border-radius:999px; padding:8px 12px; min-height:40px; font:inherit; font-size:12px; }
+.chip.on{ border-color:var(--yel); color:var(--yel); font-weight:600; }
+.note{ color:var(--mut); font-size:12px; line-height:1.5; margin-top:10px; }
+.log{ width:100%; max-width:420px; margin-top:18px; font-size:12px; color:var(--mut); }
+.log div{ padding:4px 0; border-bottom:1px solid #26241f; }
+.row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+.row input[type=text]{ flex:1; }
+input, select{ background:#12110e; color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:10px; font:inherit; font-size:15px; }
+input.num{ width:64px; text-align:center; }
+.mini{ background:transparent; color:var(--mut); border:1px solid var(--line); border-radius:10px; min-width:40px; min-height:40px; font:inherit; font-size:14px; padding:6px 10px; }
+.mini.warn{ color:#e57373; border-color:#5d3232; }
+.sess{ display:flex; align-items:center; gap:8px; padding:10px 0; border-bottom:1px solid #26241f; }
+.sess .nm{ flex:1; font-size:15px; }
+.sess .dur{ color:var(--mut); font-size:13px; }
+.hist{ font-size:13px; color:var(--mut); }
+.hist div{ padding:6px 0; border-bottom:1px solid #26241f; }
+.hidden{ display:none !important; }
+#run{ display:flex; flex-direction:column; align-items:center; width:100%; }
+@media (max-width:400px){ .time{ font-size:76px; } }
+</style>
+</head>
+<body>
+<h1>Cardio Bici</h1>
+<div class='sub'>Tus sesiones de bici estática, guiadas por voz. La intensidad la marcas tú o tu plan.</div>
+
+<div id='home'>
+  <div class='tabs' id='sesslist'></div>
+  <div class='card'>
+    <h2>Sesiones</h2>
+    <div id='sessions'></div>
+    <div class='row' style='margin-top:10px'>
+      <button class='ctl on' id='newbtn' style='flex:1'>Crear sesión</button>
+    </div>
+    <div class='note'>«Libre» es un cronómetro con avisos cada 5 minutos, sin fin. «Prueba de voz» dura 1 minuto y comprueba que todo suena.</div>
+    <div class='note'>Guía de esfuerzo: suave = puedes hablar e incluso cantar; moderado = puedes hablar pero no cantar; fuerte = solo frases cortas. Los cambios de resistencia son relativos a tu bici: sube o baja un punto desde donde estés. Ponerte de pie es siempre opcional. Si tienes un plan de tu entrenador, ese manda.</div>
+  </div>
+  <div class='card hidden' id='histcard'>
+    <h2>Historial</h2>
+    <div class='hist' id='hist'></div>
+  </div>
+</div>
+
+<div id='editor' class='card hidden' style='max-width:420px'>
+  <h2 id='edtitle'>Nueva sesión</h2>
+  <div class='row'><input type='text' id='edname' placeholder='Nombre, p. ej. Intervalos del martes'></div>
+  <div id='edsegs'></div>
+  <div class='row'><button class='mini' id='addseg' style='flex:1'>+ Añadir tramo</button></div>
+  <div class='row' style='margin-top:12px'>
+    <button class='ctl on' id='savesess' style='flex:1'>Guardar</button>
+    <button class='ctl' id='canceledit'>Volver</button>
+  </div>
+  <div class='note'>Cada tramo tiene un nombre y una duración. La voz anuncia cada cambio de tramo y los últimos 10 segundos.</div>
+</div>
+
+<div id='run' class='hidden'>
+  <div class='segname' id='segname'></div>
+  <div class='segnext' id='segnext'></div>
+  <div class='time' id='time'>00:00</div>
+  <div class='bar'><div class='fill' id='fill'></div></div>
+  <div class='state' id='state'>Lista</div>
+  <div class='controls'>
+    <button class='ctl on' id='start'>Empezar</button>
+    <button class='ctl' id='quit'>Terminar</button>
+  </div>
+  <div class='wake' id='wake'>Pantalla: sin activar</div>
+  <div class='net' id='net'></div>
+</div>
+
+<div class='card'>
+  <h2>Voz</h2>
+  <div class='chips' id='voices'></div>
+  <button class='ctl on' id='test'>Probar voz</button>
+  <div class='note'>Sin internet: si la voz suena con el modo avión activado, tu móvil la tiene descargada. Si no, descárgala en Ajustes, «Conversión de texto a voz». Las voces «en el móvil» funcionan sin conexión; las «online» necesitan internet.</div>
+</div>
+
+<div class='log' id='log'></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
+
+const UNITS=['','una','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte'];
+function numEs(n){
+  n = Math.round(n);
+  if(n <= 20) return UNITS[n];
+  if(n < 30) return n === 21 ? 'veintiuna' : n === 22 ? 'veintidós' : n === 23 ? 'veintitrés' : n === 26 ? 'veintiséis' : 'veinti' + UNITS[n-20];
+  const tens = ['','','','treinta','cuarenta','cincuenta','sesenta'];
+  const t = Math.floor(n/10), r = n%10;
+  return tens[t] + (r ? ' y ' + UNITS[r] : '');
+}
+function durEs(sec){
+  const m = Math.floor(sec/60), s = sec%60;
+  if(m && s) return numEs(m) + (m===1?' minuto':' minutos') + ' y ' + numEs(s) + ' segundos';
+  if(m) return numEs(m) + (m===1?' minuto':' minutos');
+  return numEs(s) + ' segundos';
+}
+
+/* ---- datos ---- */
+const TEST = { name:'Prueba de voz · 1 min', builtin:true, segs:[{name:'Prueba de voz', secs:60, cue:'Prueba de voz. Un minuto.'}] };
+const LIBRE = { name:'Libre', builtin:true, free:true };
+const G = (name, secs, cue) => ({name, secs, cue});
+const GUIDED = [
+ { name:'Suave · 20 min', builtin:true, desc:'Continua y tranquila', segs:[
+   G('Calentamiento', 240, 'Empezamos suave, sentado, resistencia baja. Cuatro minutos para entrar en calor.'),
+   G('Pedaleo continuo', 600, 'Sube un poco la resistencia. Ritmo moderado: puedes hablar, pero no cantar. Diez minutos sentado.'),
+   G('De pie suave', 60, 'Si te ves seguro, ponte de pie un minuto. Si no, sigue sentado.'),
+   G('Sentado', 180, 'Siéntate y recupera el ritmo moderado. Tres minutos.'),
+   G('Vuelta a la calma', 120, 'Baja la resistencia. Dos minutos suaves para terminar.')]
+ },
+ { name:'Intervalos · 25 min', builtin:true, desc:'1 min fuerte, 2 suaves', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, resistencia baja.'),
+   G('Fuerte 1', 60, 'Sube la resistencia y acelera. Un minuto fuerte: solo frases cortas.'),
+   G('Recupera 1', 120, 'Baja la resistencia. Dos minutos suaves.'),
+   G('Fuerte 2', 60, 'Otra vez fuerte. Un minuto.'),
+   G('Recupera 2', 120, 'Suave. Dos minutos.'),
+   G('Fuerte 3', 60, 'Fuerte. Un minuto. Si quieres, de pie.'),
+   G('Recupera 3', 120, 'Sentado, suave. Dos minutos.'),
+   G('Fuerte 4', 60, 'Fuerte. Un minuto.'),
+   G('Recupera 4', 120, 'Suave. Dos minutos.'),
+   G('Fuerte 5', 60, 'Fuerte. Un minuto más.'),
+   G('Recupera 5', 120, 'Suave. Dos minutos.'),
+   G('Fuerte 6', 60, 'El último fuerte. Un minuto.'),
+   G('Recupera 6', 120, 'Suave. Dos minutos.'),
+   G('Vuelta a la calma', 120, 'Resistencia baja. Dos minutos suaves para terminar.')]
+ },
+ { name:'Colinas · 30 min', builtin:true, desc:'Resistencia y de pie', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave.'),
+   G('Subida 1', 180, 'Sube la resistencia como una cuesta. Tres minutos. Ponte de pie si te ves seguro.'),
+   G('Llano 1', 120, 'Baja la resistencia, sentado. Dos minutos suaves.'),
+   G('Subida 2', 180, 'Otra subida, tres minutos. De pie o sentado, como prefieras.'),
+   G('Llano 2', 120, 'Baja la resistencia. Dos minutos suaves.'),
+   G('Subida 3', 180, 'Tercera subida. Tres minutos.'),
+   G('Llano 3', 120, 'Suave, sentado. Dos minutos.'),
+   G('Subida 4', 180, 'Última subida. Tres minutos.'),
+   G('Llano 4', 120, 'Suave, sentado. Dos minutos.'),
+   G('Vuelta a la calma', 300, 'Resistencia baja. Cinco minutos suaves para terminar.')]
+ },
+ { name:'Fondo · 45 min', builtin:true, desc:'Larga y continua', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, suave.'),
+   G('Continuo 1', 600, 'Ritmo moderado y constante, sentado. Diez minutos.'),
+   G('De pie 1', 90, 'Noventa segundos de pie si te ves seguro. Misma resistencia.'),
+   G('Continuo 2', 510, 'Sentado, ritmo moderado.'),
+   G('De pie 2', 90, 'De pie noventa segundos.'),
+   G('Continuo 3', 510, 'Sentado, moderado. Ya queda menos.'),
+   G('De pie 3', 60, 'Un minuto de pie.'),
+   G('Continuo 4', 300, 'Cinco minutos moderados.'),
+   G('Vuelta a la calma', 240, 'Baja la resistencia. Cuatro minutos suaves para terminar.')]
+ }
+];
+let sessions = [];
+try{ sessions = JSON.parse(localStorage.getItem('cb_sessions')||'[]'); }catch(e){ sessions = []; }
+let history_ = [];
+try{ history_ = JSON.parse(localStorage.getItem('cb_history')||'[]'); }catch(e){ history_ = []; }
+
+function sessDur(s){ return s.segs.reduce((a,g)=>a+g.secs,0); }
+
+function renderHome(){
+  const box = $('sessions'); box.innerHTML = '';
+  const gh = document.createElement('div'); gh.className='hist'; gh.style.marginBottom='4px';
+  gh.textContent = 'Guiadas'; box.append(gh);
+  [TEST, LIBRE].concat(GUIDED).forEach((s) => addSessRow(box, s, false));
+  if(sessions.length){
+    const mh = document.createElement('div'); mh.className='hist'; mh.style.margin='10px 0 4px';
+    mh.textContent = 'Mis sesiones'; box.append(mh);
+  }
+  sessions.forEach((s) => addSessRow(box, s, true));
+  renderHist();
+}
+function addSessRow(box, s, editable){
+    const d = document.createElement('div'); d.className='sess';
+    const nm = document.createElement('div'); nm.className='nm'; nm.textContent = s.name;
+    const dur = document.createElement('div'); dur.className='dur';
+    dur.textContent = s.free ? 'sin fin' : fmt(sessDur(s));
+    const go = document.createElement('button'); go.className='mini'; go.textContent='▶';
+    go.onclick = () => startSession(s);
+    if(s.desc){ nm.title = s.desc; dur.textContent = fmt(sessDur(s)); }
+    d.append(nm, dur, go);
+    if(editable){
+      const ed = document.createElement('button'); ed.className='mini'; ed.textContent='✎';
+      ed.onclick = () => openEditor(sessions.indexOf(s));
+      const del = document.createElement('button'); del.className='mini warn'; del.textContent='✕';
+      del.onclick = () => { sessions.splice(sessions.indexOf(s),1); saveSessions(); renderHome(); };
+      d.append(ed, del);
+    }
+    box.append(d);
+}
+function renderHist(){
+  const h = $('hist');
+  if(history_.length){
+    $('histcard').classList.remove('hidden');
+    h.innerHTML = '';
+    history_.slice(0,8).forEach(r => {
+      const d = document.createElement('div');
+      d.textContent = r.date + ' · ' + r.name + ' · ' + fmt(r.secs);
+      h.append(d);
+    });
+  } else { $('histcard').classList.add('hidden'); }
+}
+function saveSessions(){ localStorage.setItem('cb_sessions', JSON.stringify(sessions)); }
+function saveHistory(){ localStorage.setItem('cb_history', JSON.stringify(history_)); }
+
+/* ---- editor ---- */
+let editIdx = -1;
+function segRow(seg){
+  const row = document.createElement('div'); row.className='row';
+  const nm = document.createElement('input'); nm.type='text'; nm.placeholder='Tramo (p. ej. suave)'; nm.value = seg?seg.name:'';
+  const mi = document.createElement('input'); mi.className='num'; mi.type='number'; mi.min='0'; mi.max='180'; mi.value = seg?Math.floor(seg.secs/60):5;
+  const se = document.createElement('input'); se.className='num'; se.type='number'; se.min='0'; se.max='59'; se.step='5'; se.value = seg?seg.secs%60:0;
+  const up = document.createElement('button'); up.className='mini'; up.textContent='↑';
+  const dn = document.createElement('button'); dn.className='mini'; dn.textContent='↓';
+  const rm = document.createElement('button'); rm.className='mini warn'; rm.textContent='✕';
+  up.onclick = () => { const p=row.parentNode; if(row.previousElementSibling) p.insertBefore(row, row.previousElementSibling); };
+  dn.onclick = () => { const p=row.parentNode; if(row.nextElementSibling) p.insertBefore(row.nextElementSibling, row); };
+  rm.onclick = () => row.remove();
+  row.append(nm, mi, se, up, dn, rm);
+  return row;
+}
+function openEditor(idx){
+  editIdx = idx;
+  $('edtitle').textContent = idx >= 0 ? 'Editar sesión' : 'Nueva sesión';
+  $('edname').value = idx >= 0 ? sessions[idx].name : '';
+  const box = $('edsegs'); box.innerHTML='';
+  const segs = idx >= 0 ? sessions[idx].segs : [{name:'Tramo 1',secs:300},{name:'Tramo 2',secs:60}];
+  segs.forEach(sg => box.append(segRow(sg)));
+  $('home').classList.add('hidden'); $('editor').classList.remove('hidden');
+}
+$('newbtn').onclick = () => openEditor(-1);
+$('addseg').onclick = () => $('edsegs').append(segRow(null));
+$('canceledit').onclick = () => { $('editor').classList.add('hidden'); $('home').classList.remove('hidden'); };
+$('savesess').onclick = () => {
+  const name = $('edname').value.trim() || 'Mi sesión';
+  const segs = [];
+  $('edsegs').querySelectorAll('.row').forEach(r => {
+    const ins = r.querySelectorAll('input');
+    const nm = ins[0].value.trim() || 'Tramo';
+    const secs = Math.max(5, (parseInt(ins[1].value)||0)*60 + (parseInt(ins[2].value)||0));
+    segs.push({name:nm, secs});
+  });
+  if(!segs.length) return;
+  if(editIdx >= 0) sessions[editIdx] = {name, segs}; else sessions.push({name, segs});
+  saveSessions();
+  $('editor').classList.add('hidden'); $('home').classList.remove('hidden');
+  renderHome();
+};
+
+/* ---- motor de sesión ---- */
+let cur = null, running = false, done = false, timer = null;
+let elapsedBase = 0, startTs = 0, segAnnounced = -1, lastCueMin = -1, tenWarned = {};
+let wakeLock = null, voiceName = '';
+
+function logLine(t){ const d=document.createElement('div'); d.textContent=t; $('log').prepend(d); }
+function beep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.value = 880; g.gain.value = 0.15;
+    o.connect(g); g.connect(ctx.destination); o.start();
+    setTimeout(()=>{ o.stop(); ctx.close(); }, 350);
+  }catch(e){}
+}
+function speak(text){
+  if(!('speechSynthesis' in window)){ beep(); logLine('✕ Sin voz en este navegador: «'+text+'»'); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'es-ES'; u.rate = 1.02;
+  const v = speechSynthesis.getVoices().find(x => x.name === voiceName);
+  if(v) u.voice = v;
+  u.onerror = () => { beep(); logLine('✕ Falló la voz, aviso solo visual: «'+text+'»'); };
+  speechSynthesis.speak(u);
+  logLine('🔊 ' + text);
+}
+function loadVoices(){
+  if(!('speechSynthesis' in window)) return;
+  const all = speechSynthesis.getVoices();
+  const es = all.filter(v => v.lang.toLowerCase().startsWith('es'));
+  const list = es.length ? es : all.slice(0,8);
+  const box = $('voices'); box.innerHTML = '';
+  list.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (v.name === voiceName ? ' on' : '');
+    b.textContent = v.name.replace('Microsoft ','').replace('Google ','') + ' · ' + (v.localService ? 'en el móvil' : 'online');
+    b.onclick = () => { voiceName = v.name; loadVoices(); };
+    box.appendChild(b);
+  });
+  if(!voiceName && list.length){ const pref = es.find(v => v.localService) || es[0]; if(pref) voiceName = pref.name; }
+}
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+async function requestWake(){
+  if(!('wakeLock' in navigator)){ $('wake').textContent = 'Pantalla: no se puede mantener encendida desde aquí'; return; }
+  try{
+    wakeLock = await navigator.wakeLock.request('screen');
+    $('wake').textContent = 'Pantalla: se mantiene encendida';
+    wakeLock.addEventListener('release', () => { $('wake').textContent = 'Pantalla: liberada'; });
+  }catch(e){ $('wake').textContent = 'Pantalla: no disponible (' + (e && e.message ? e.message : 'rechazada') + ')'; }
+}
+function releaseWake(){ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; } $('wake').textContent = 'Pantalla: sin activar'; }
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible' && running) requestWake(); });
+
+function totalElapsed(){ return elapsedBase + (running ? (Date.now()-startTs)/1000 : 0); }
+
+function segAt(t){
+  let acc = 0;
+  for(let i=0;i<cur.segs.length;i++){
+    if(t < acc + cur.segs[i].secs) return { i, seg: cur.segs[i], into: t-acc, left: acc+cur.segs[i].secs-t };
+    acc += cur.segs[i].secs;
+  }
+  return null;
+}
+
+function tick(){
+  const t = totalElapsed();
+  if(cur.free){
+    $('time').textContent = fmt(t);
+    $('fill').style.width = '100%';
+    const m = Math.floor(t/60);
+    if(m >= 5 && m % 5 === 0 && m !== lastCueMin){
+      lastCueMin = m;
+      speak('Llevas ' + durEs(m*60) + '.');
+    }
+    return;
+  }
+  const total = sessDur(cur);
+  const rem = Math.max(0, total - t);
+  const s = segAt(t);
+  if(!s){ finish(); return; }
+  if(s.i !== segAnnounced){
+    segAnnounced = s.i;
+    $('segname').textContent = s.seg.name;
+    const nx = cur.segs[s.i+1];
+    $('segnext').textContent = nx ? ('Siguiente: ' + nx.name + ' · ' + fmt(nx.secs)) : 'Último tramo';
+    speak(s.seg.cue ? s.seg.cue : (s.seg.name + '. ' + durEs(s.seg.secs) + '.'));
+  }
+  if(s.left <= 10 && s.left > 0 && !tenWarned[s.i]){
+    tenWarned[s.i] = true;
+    beep();
+    speak('Diez segundos.');
+  }
+  $('time').textContent = fmt(rem);
+  $('fill').style.width = Math.min(100, t/total*100) + '%';
+}
+
+function startSession(s){
+  cur = s; running = false; done = false; elapsedBase = 0; segAnnounced = -1; lastCueMin = -1; tenWarned = {};
+  clearInterval(timer);
+  $('log').innerHTML = '';
+  $('home').classList.add('hidden'); $('editor').classList.add('hidden');
+  $('run').classList.remove('hidden');
+  $('segname').textContent = s.free ? 'Libre' : '';
+  $('segnext').textContent = s.free ? '' : '';
+  $('time').textContent = s.free ? '00:00' : fmt(sessDur(s));
+  $('fill').style.width = '0';
+  $('state').textContent = 'Lista'; $('start').textContent = 'Empezar';
+  window.scrollTo(0,0);
+}
+function start(){
+  if(done){ startSession(cur); }
+  startTs = Date.now(); running = true;
+  $('state').textContent = 'En marcha'; $('start').textContent = 'Pausar';
+  timer = setInterval(tick, 250); requestWake();
+}
+function stop(manual = true){
+  if(running) elapsedBase += (Date.now()-startTs)/1000;
+  running = false; clearInterval(timer);
+  $('state').textContent = manual ? 'En pausa' : $('state').textContent;
+  $('start').textContent = 'Reanudar';
+  if(manual) releaseWake();
+}
+function finish(){
+  stop(false); done = true;
+  $('state').textContent = 'Completada'; $('start').textContent = 'Empezar';
+  releaseWake();
+  speak('Sesión completada.');
+  pushHistory(sessDur(cur));
+}
+function pushHistory(secs){
+  const d = new Date();
+  const ds = d.toLocaleDateString('es-ES', {day:'numeric', month:'short'});
+  history_.unshift({ date: ds, name: cur.name, secs: Math.round(secs) });
+  history_ = history_.slice(0,30);
+  saveHistory();
+}
+$('start').onclick = () => running ? stop(true) : start();
+$('quit').onclick = () => {
+  const t = totalElapsed();
+  const wasRunning = running || elapsedBase > 0;
+  if(running) stop(true);
+  if(cur && cur.free && wasRunning && t >= 60){
+    speak('Sesión terminada. ' + durEs(Math.round(t/60)*60) + '.');
+    pushHistory(t);
+  }
+  running = false; clearInterval(timer); releaseWake();
+  $('run').classList.add('hidden'); $('home').classList.remove('hidden');
+  renderHome();
+};
+$('test').onclick = () => speak('Prueba de voz en español. Si me oyes, la voz funciona.');
+
+function netStatus(){
+  $('net').textContent = navigator.onLine ? '' : 'Sin conexión: la app sigue funcionando';
+  $('net').className = 'net ' + (navigator.onLine ? '' : 'ok');
+}
+window.addEventListener('online', netStatus); window.addEventListener('offline', netStatus); netStatus();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+renderHome();
+</script>
+</body>
+</html>
