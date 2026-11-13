@@ -3,7 +3,7 @@
 <head>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
-<meta name='theme-color' content='#141310'>
+<meta name='theme-color' content='#0f0e0b'>
 <meta name='mobile-web-app-capable' content='yes'>
 <meta name='apple-mobile-web-app-capable' content='yes'>
 <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'>
@@ -12,130 +12,258 @@
 <link rel='apple-touch-icon' href='1-icon-192.png'>
 <title>Cardio Bici</title>
 <style>
-:root{ --bg:#141310; --panel:#1d1b16; --line:#3a372f; --txt:#f4f1e8; --mut:#b9b3a4; --yel:#f5c518; }
-*{ box-sizing:border-box; }
+:root{ --bg:#0f0e0b; --panel:#1a1813; --panel2:#211e17; --line:#35321f; --line2:#2b2820; --txt:#f5f2e9; --mut:#a9a394; --yel:#f5c518; --grn:#7bd49a; --org:#ff8a65; --red:#ff6b6b; }
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body{ margin:0; background:var(--bg); color:var(--txt); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; }
-body{ min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:16px; }
-h1{ font-size:20px; font-weight:700; margin:8px 0 2px; letter-spacing:.01em; }
-.sub{ color:var(--mut); font-size:13px; margin-bottom:14px; text-align:center; }
-.tabs{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; justify-content:center; }
-.tab{ background:transparent; color:var(--mut); border:1px solid var(--line); border-radius:999px; padding:9px 16px; font:inherit; font-size:14px; }
-.tab.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:600; }
-.time{ font-size:96px; line-height:1; font-weight:800; color:var(--yel); font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
-.segname{ font-size:20px; font-weight:700; margin-top:6px; min-height:24px; }
-.segnext{ color:var(--mut); font-size:13px; margin-top:2px; min-height:16px; }
-.bar{ width:100%; max-width:340px; height:6px; background:#2c2a24; border-radius:3px; margin:10px 0 4px; }
-.fill{ height:100%; background:var(--yel); border-radius:3px; width:0; transition:width .3s linear; }
-.state{ color:var(--mut); font-size:13px; margin-top:2px; margin-bottom:14px; }
-.cue{ font-size:20px; line-height:1.4; max-width:430px; margin:0 auto 14px; min-height:56px; color:var(--txt); }
-.controls{ display:flex; gap:10px; justify-content:center; margin:6px 0; }
-.ctl:disabled{ opacity:.45; }
-.ctl{ background:var(--panel); color:var(--txt); border:1px solid var(--line); border-radius:16px; padding:12px 24px; min-height:52px; min-width:130px; font:inherit; font-size:16px; }
-.ctl.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:600; }
-.wake, .net{ color:var(--mut); font-size:12px; margin-top:6px; text-align:center; }
-.net.ok{ color:var(--yel); }
-.card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; width:100%; max-width:420px; margin-top:22px; }
-.card h2{ font-size:14px; margin:0 0 10px; color:var(--mut); font-weight:600; }
-.chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
-.chip{ background:transparent; color:var(--txt); border:1px solid var(--line); border-radius:999px; padding:8px 12px; min-height:40px; font:inherit; font-size:12px; }
-.chip.on{ border-color:var(--yel); color:var(--yel); font-weight:600; }
-.note{ color:var(--mut); font-size:12px; line-height:1.5; margin-top:10px; }
-.log{ width:100%; max-width:420px; margin-top:18px; font-size:12px; color:var(--mut); }
-.log div{ padding:4px 0; border-bottom:1px solid #26241f; }
-.row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-.row input[type=text]{ flex:1; }
-input, select{ background:#12110e; color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:10px; font:inherit; font-size:15px; }
-input.num{ width:64px; text-align:center; }
-.mini{ background:transparent; color:var(--mut); border:1px solid var(--line); border-radius:10px; min-width:40px; min-height:40px; font:inherit; font-size:14px; padding:6px 10px; }
-.mini.warn{ color:#e57373; border-color:#5d3232; }
-.sess{ display:flex; align-items:center; gap:8px; padding:10px 0; border-bottom:1px solid #26241f; }
-.sess .nm{ flex:1; font-size:15px; }
-.sess .dur{ color:var(--mut); font-size:13px; }
-.hist{ font-size:13px; color:var(--mut); }
-.hist div{ padding:6px 0; border-bottom:1px solid #26241f; }
+body{ min-height:100vh; max-width:520px; margin:0 auto; padding:0 0 40px; }
+button{ font:inherit; color:inherit; }
 .hidden{ display:none !important; }
-#run{ display:flex; flex-direction:column; align-items:center; width:100%; }
-.scene{ position:relative; width:100%; max-width:460px; height:clamp(150px,34vh,250px); border-radius:20px; overflow:hidden; border:1px solid var(--line); margin:4px 0 8px; background:#1b1740; }
-.scene canvas{ display:block; width:100%; height:100%; }
-.badge{ position:absolute; top:10px; left:10px; padding:5px 12px; border-radius:999px; font-size:13px; font-weight:700; background:rgba(20,19,16,.72); color:var(--txt); border:1px solid rgba(255,255,255,.18); letter-spacing:.02em; }
-.badge.l1{ color:#8fe3a8; } .badge.l2{ color:#f5c518; } .badge.l3{ color:#ff8a65; } .badge.cl{ color:#ff6b6b; }
-.prof{ position:relative; width:100%; max-width:460px; height:46px; display:flex; align-items:flex-end; gap:2px; margin:2px 0 6px; }
-.prof i{ display:block; border-radius:3px 3px 0 0; min-width:2px; opacity:.55; }
+.view{ padding:0 16px; animation:fadein .25s ease; }
+@keyframes fadein{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+
+/* cabecera */
+header.top{ padding:22px 16px 6px; }
+header.top h1{ font-size:26px; font-weight:800; margin:0; letter-spacing:-.01em; }
+header.top .sub{ color:var(--mut); font-size:13px; margin-top:3px; }
+.sect{ font-size:13px; font-weight:700; color:var(--mut); text-transform:uppercase; letter-spacing:.08em; margin:26px 2px 10px; }
+
+/* tarjetas de clase */
+.klass{ display:block; width:100%; text-align:left; background:linear-gradient(160deg,var(--panel2),var(--panel)); border:1px solid var(--line2); border-radius:20px; padding:16px; margin-bottom:12px; cursor:pointer; }
+.klass:active{ transform:scale(.985); }
+.klass .r1{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.klass .nm{ font-size:17px; font-weight:700; }
+.pill{ flex:none; font-size:12px; font-weight:700; color:var(--yel); border:1px solid rgba(245,197,24,.5); border-radius:999px; padding:4px 10px; font-variant-numeric:tabular-nums; }
+.klass .ds{ color:var(--mut); font-size:13px; margin-top:5px; line-height:1.45; }
+.klass .r3{ display:flex; align-items:center; gap:10px; margin-top:12px; }
+.miniprof{ flex:1; display:flex; align-items:flex-end; gap:2px; height:26px; }
+.miniprof i{ display:block; border-radius:2px 2px 0 0; min-width:2px; opacity:.85; }
+.lvl{ flex:none; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:#26231c; }
+.lvl.l1{ color:var(--grn); } .lvl.l2{ color:var(--yel); } .lvl.l3{ color:var(--org); }
+
+/* tarjetas pequeñas */
+.duorow{ display:flex; gap:10px; }
+.mini2{ flex:1; background:var(--panel); border:1px solid var(--line2); border-radius:16px; padding:13px 14px; text-align:left; cursor:pointer; }
+.mini2 .nm{ font-size:14.5px; font-weight:700; }
+.mini2 .ds{ color:var(--mut); font-size:12px; margin-top:3px; }
+.mine{ display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--line2); border-radius:16px; padding:12px 14px; margin-bottom:10px; }
+.mine .nm{ flex:1; font-size:15px; font-weight:600; }
+.mine .dur{ color:var(--mut); font-size:13px; font-variant-numeric:tabular-nums; }
+.iconb{ background:transparent; border:1px solid var(--line2); border-radius:10px; min-width:40px; min-height:40px; font-size:14px; padding:6px 10px; color:var(--mut); }
+.iconb.warn{ color:#e57373; }
+.iconb.go{ color:#141310; background:var(--yel); border-color:var(--yel); font-weight:700; }
+.bigghost{ width:100%; background:transparent; border:1.5px dashed var(--line); border-radius:16px; padding:14px; font-size:15px; color:var(--mut); cursor:pointer; margin-top:2px; }
+
+/* ajustes */
+details.card{ background:var(--panel); border:1px solid var(--line2); border-radius:18px; padding:0; margin-top:14px; }
+details.card summary{ list-style:none; cursor:pointer; padding:15px 16px; font-size:15px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+details.card summary::-webkit-details-marker{ display:none; }
+details.card summary::after{ content:'▾'; color:var(--mut); transition:transform .2s; }
+details.card[open] summary::after{ transform:rotate(180deg); }
+details.card .body{ padding:0 16px 14px; }
+.opt{ display:flex; align-items:center; gap:10px; padding:9px 0; font-size:14px; cursor:pointer; }
+.opt input{ width:22px; height:22px; accent-color:var(--yel); }
+.note{ color:var(--mut); font-size:12px; line-height:1.55; margin-top:10px; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 10px; }
+.chip{ background:transparent; color:var(--txt); border:1px solid var(--line2); border-radius:999px; padding:8px 12px; min-height:40px; font-size:12px; }
+.chip.on{ border-color:var(--yel); color:var(--yel); font-weight:600; }
+.spotifybtn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#1DB954; color:#0f0e0b; font-weight:800; font-size:15px; border-radius:14px; padding:13px; text-decoration:none; margin-top:6px; }
+
+/* historial */
+.hist{ font-size:13px; color:var(--mut); }
+.hist div{ padding:7px 2px; border-bottom:1px solid var(--line2); display:flex; justify-content:space-between; gap:8px; }
+.hist div span:last-child{ font-variant-numeric:tabular-nums; }
+
+/* detalle de clase */
+.backb{ background:transparent; border:1px solid var(--line2); border-radius:12px; min-width:44px; min-height:44px; font-size:18px; color:var(--txt); }
+.dhead{ display:flex; align-items:center; gap:12px; padding-top:18px; }
+.dhead h1{ font-size:22px; font-weight:800; margin:0; flex:1; }
+.dmeta{ display:flex; gap:8px; margin:14px 0 4px; flex-wrap:wrap; }
+.bigprof{ position:relative; display:flex; align-items:flex-end; gap:2px; height:64px; background:var(--panel); border:1px solid var(--line2); border-radius:14px; padding:8px; margin-top:12px; }
+.bigprof i{ display:block; border-radius:3px 3px 0 0; min-width:3px; opacity:.9; }
+.plist{ margin-top:6px; }
+.plist .pr{ display:flex; justify-content:space-between; gap:10px; padding:8px 2px; border-bottom:1px solid var(--line2); font-size:14px; }
+.plist .pr span:last-child{ color:var(--mut); font-variant-numeric:tabular-nums; }
+.cta{ display:flex; align-items:center; justify-content:center; width:100%; background:var(--yel); color:#141310; border:none; border-radius:16px; padding:16px; font-size:17px; font-weight:800; cursor:pointer; margin-top:18px; }
+.cta2{ display:flex; align-items:center; justify-content:center; width:100%; background:transparent; color:var(--txt); border:1px solid var(--line2); border-radius:16px; padding:14px; font-size:15px; cursor:pointer; margin-top:10px; text-decoration:none; }
+
+/* sesión */
+#run{ padding:0; }
+#run .scene{ position:relative; width:100%; height:clamp(210px,38vh,320px); overflow:hidden; background:#1b1740; }
+#run .scene canvas{ display:block; width:100%; height:100%; }
+#run .scene .fade{ position:absolute; inset:auto 0 0 0; height:70px; background:linear-gradient(transparent,var(--bg)); pointer-events:none; }
+.badge{ position:absolute; top:12px; left:12px; padding:6px 13px; border-radius:999px; font-size:13px; font-weight:700; background:rgba(15,14,11,.66); border:1px solid rgba(255,255,255,.16); letter-spacing:.02em; backdrop-filter:blur(4px); }
+.badge.l1{ color:var(--grn); } .badge.l2{ color:var(--yel); } .badge.l3{ color:var(--org); } .badge.cl{ color:var(--red); }
+.remtot{ position:absolute; top:12px; right:12px; padding:6px 12px; border-radius:999px; font-size:12.5px; font-weight:700; background:rgba(15,14,11,.66); border:1px solid rgba(255,255,255,.14); font-variant-numeric:tabular-nums; }
+.runbody{ padding:14px 20px 0; text-align:center; }
+.segname{ font-size:23px; font-weight:800; min-height:28px; letter-spacing:-.01em; }
+.segnext{ color:var(--mut); font-size:13px; margin-top:4px; min-height:17px; }
+.time{ font-size:84px; line-height:1.05; font-weight:800; color:var(--yel); font-variant-numeric:tabular-nums; letter-spacing:-.02em; margin-top:6px; }
+.bar{ width:100%; max-width:380px; height:5px; background:#26241d; border-radius:3px; margin:8px auto 0; }
+.fill{ height:100%; background:var(--yel); border-radius:3px; width:0; transition:width .3s linear; }
+.cue{ font-size:16.5px; line-height:1.5; max-width:420px; margin:14px auto 4px; min-height:50px; color:var(--txt); }
+.cue.flash{ animation:cueflash 1.1s ease; }
+@keyframes cueflash{ 0%{ color:var(--yel); transform:scale(1.03);} 100%{ color:var(--txt); transform:none;} }
+.prof{ position:relative; width:100%; max-width:420px; height:44px; display:flex; align-items:flex-end; gap:2px; margin:14px auto 4px; }
+.prof i{ display:block; border-radius:3px 3px 0 0; min-width:2px; opacity:.5; }
 .prof i.past{ opacity:1; }
-.prof .ph{ position:absolute; bottom:0; top:0; width:3px; background:#fff; border-radius:2px; box-shadow:0 0 8px rgba(255,255,255,.7); pointer-events:none; }
-body.running .sub{ display:none; }
-body.running h1{ margin-top:0; font-size:16px; }
-@media (max-width:400px){ .time{ font-size:76px; } }
+.prof .ph{ position:absolute; bottom:0; top:-4px; width:3px; background:#fff; border-radius:2px; box-shadow:0 0 8px rgba(255,255,255,.7); pointer-events:none; }
+.controls{ display:flex; gap:12px; justify-content:center; margin:18px 0 6px; }
+.ctl{ background:var(--panel); color:var(--txt); border:1px solid var(--line2); border-radius:18px; padding:15px 26px; min-height:56px; min-width:140px; font-size:16.5px; cursor:pointer; }
+.ctl.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:800; }
+.ctl:disabled{ opacity:.45; }
+.wake, .net{ color:var(--mut); font-size:11.5px; margin-top:6px; }
+.net.ok{ color:var(--yel); }
+details.rlog{ max-width:420px; margin:12px auto 0; text-align:left; }
+details.rlog summary{ color:var(--mut); font-size:12px; cursor:pointer; list-style:none; }
+details.rlog summary::-webkit-details-marker{ display:none; }
+.log{ font-size:12px; color:var(--mut); max-height:150px; overflow:auto; }
+.log div{ padding:4px 0; border-bottom:1px solid #201e18; }
+/* cuenta atrás 3-2-1 */
+#cdown{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(15,14,11,.88); z-index:50; }
+#cdown .n{ font-size:130px; font-weight:800; color:var(--yel); animation:pop .9s ease; }
+@keyframes pop{ 0%{ transform:scale(1.5); opacity:0;} 25%{ transform:scale(1); opacity:1;} 85%{ opacity:1;} 100%{ opacity:.2;} }
+
+/* fin de sesión */
+#finish{ text-align:center; padding-top:70px; }
+#finish .check{ width:92px; height:92px; border-radius:50%; background:rgba(245,197,24,.12); border:2px solid var(--yel); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:44px; color:var(--yel); animation:pop .6s ease; }
+#finish h1{ font-size:26px; font-weight:800; margin:0 0 6px; }
+#finish .fsess{ color:var(--mut); font-size:15px; }
+#finish .fdur{ font-size:64px; font-weight:800; color:var(--yel); font-variant-numeric:tabular-nums; margin-top:18px; }
+#finish .flbl{ color:var(--mut); font-size:13px; }
+
+/* editor */
+#editor .card{ background:var(--panel); border:1px solid var(--line2); border-radius:18px; padding:16px; margin-top:18px; }
+#editor h2{ font-size:17px; margin:0 0 12px; }
+.row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+.row input[type=text]{ flex:1; min-width:0; }
+input{ background:#12110e; color:var(--txt); border:1px solid var(--line2); border-radius:10px; padding:11px; font:inherit; font-size:15px; }
+input.num{ width:60px; text-align:center; }
+@media (max-width:400px){ .time{ font-size:70px; } }
 </style>
 </head>
 <body>
-<h1>Cardio Bici</h1>
-<div class='sub'>Tus sesiones de bici estática, guiadas por voz. La intensidad la marcas tú o tu plan.</div>
 
-<div id='home'>
-  <div class='tabs' id='sesslist'></div>
-  <div class='card'>
-    <h2>Sesiones</h2>
-    <div id='sessions'></div>
-    <div class='row' style='margin-top:10px'>
-      <button class='ctl on' id='newbtn' style='flex:1'>Crear sesión</button>
-    </div>
-    <div class='note'><label style='display:flex;align-items:center;gap:10px;cursor:pointer'><input type='checkbox' id='standcb' style='width:22px;height:22px;accent-color:#f5c518'> Mi bici permite pedalear de pie y quiero esos avisos</label></div>
-    <div class='note'><label style='display:flex;align-items:center;gap:10px;cursor:pointer'><input type='checkbox' id='scenecb' style='width:22px;height:22px;accent-color:#f5c518'> Mostrar ciclista y paisaje animados durante la sesión</label></div>
-    <div class='note'>El ciclista y el paisaje son una animación que sigue tu plan (ritmo, subidas, avance de la sesión). No miden tu pedaleo, tu velocidad ni tu pulso.</div>
-    <div class='note'>«Libre» es un cronómetro con avisos cada 5 minutos, sin fin. «Prueba de voz» dura 1 minuto y comprueba que todo suena.</div>
-    <div class='note'>Antes de empezar: ajusta el sillín (rodilla ligeramente flexionada con el pedal abajo), sujeta los pies, manos cómodas, ten agua cerca y ventila la habitación.</div>
-    <div class='note'>Guía de esfuerzo: suave = puedes hablar e incluso cantar; moderado = puedes hablar pero no cantar; fuerte = solo frases cortas, siempre controlado. La resistencia se ajusta en relación a tu bici, sin números fijos. Pedalear de pie es opcional y solo si tu bici está diseñada para ello; puedes hacer cualquier sesión entera sentado. Para ante dolor, mareo o malestar inusual. Si tienes un plan de tu entrenador, ese manda.</div>
+<!-- INICIO -->
+<div id='home' class='view'>
+  <header class='top'>
+    <h1>Cardio Bici</h1>
+    <div class='sub'>Tus clases de bici estática, guiadas por voz. La intensidad la marcas tú o tu plan.</div>
+  </header>
+
+  <div class='sect'>Clases guiadas</div>
+  <div id='classes'></div>
+
+  <div class='duorow'>
+    <button class='mini2' id='gotest'><div class='nm'>Prueba de voz</div><div class='ds'>1 min · comprueba que todo suena</div></button>
+    <button class='mini2' id='golibre'><div class='nm'>Libre</div><div class='ds'>Sin fin · avisos cada 5 min</div></button>
   </div>
-  <div class='card hidden' id='histcard'>
-    <h2>Historial</h2>
+
+  <div id='minesect' class='hidden'>
+    <div class='sect'>Mis sesiones</div>
+    <div id='mine'></div>
+  </div>
+  <button class='bigghost' id='newbtn' style='margin-top:14px'>+ Crear mi sesión</button>
+
+  <div class='sect'>Música</div>
+  <a class='spotifybtn' id='spotify' href='https://open.spotify.com/' target='_blank' rel='noopener'>♫ &nbsp;Abrir Spotify</a>
+  <div class='note'>Pon tu lista en Spotify y vuelve a Cardio Bici antes de empezar: la música sigue sonando de fondo. Cambiar de app durante la sesión puede cortar la voz y dejar que la pantalla se apague. Comprueba cómo se oyen las instrucciones con música usando «Prueba de voz»; el móvil decide si baja la música mientras habla la voz, y no se puede asegurar.</div>
+
+  <details class='card' id='settings'>
+    <summary>Ajustes y voz</summary>
+    <div class='body'>
+      <label class='opt'><input type='checkbox' id='standcb'> Mi bici permite pedalear de pie y quiero esos avisos</label>
+      <label class='opt'><input type='checkbox' id='scenecb'> Mostrar ciclista y paisaje animados durante la sesión</label>
+      <div class='note'>El ciclista y el paisaje son una animación que sigue tu plan (ritmo, subidas, avance de la sesión). No miden tu pedaleo, tu velocidad ni tu pulso.</div>
+      <div class='sect' style='margin:14px 2px 6px'>Voz</div>
+      <div class='chips' id='voices'></div>
+      <button class='cta2' id='test' style='margin-top:0'>Probar voz</button>
+      <div class='note'>Sin internet: si la voz suena con el modo avión activado, tu móvil la tiene descargada. Si no, descárgala en Ajustes, «Conversión de texto a voz». Las voces «en el móvil» funcionan sin conexión; las «online» necesitan internet.</div>
+      <div class='note'>Antes de empezar: ajusta el sillín (rodilla ligeramente flexionada con el pedal abajo), sujeta los pies, manos cómodas, ten agua cerca y ventila la habitación.</div>
+      <div class='note'>Guía de esfuerzo: suave = puedes hablar e incluso cantar; moderado = puedes hablar pero no cantar; fuerte = solo frases cortas, siempre controlado. La resistencia se ajusta en relación a tu bici, sin números fijos. Pedalear de pie es opcional y solo si tu bici está diseñada para ello; puedes hacer cualquier sesión entera sentado. Para ante dolor, mareo o malestar inusual. Si tienes un plan de tu entrenador, ese manda.</div>
+    </div>
+  </details>
+
+  <div id='histwrap' class='hidden'>
+    <div class='sect'>Historial</div>
     <div class='hist' id='hist'></div>
   </div>
 </div>
 
-<div id='editor' class='card hidden' style='max-width:420px'>
-  <h2 id='edtitle'>Nueva sesión</h2>
-  <div class='row'><input type='text' id='edname' placeholder='Nombre, p. ej. Intervalos del martes'></div>
-  <div id='edsegs'></div>
-  <div class='row'><button class='mini' id='addseg' style='flex:1'>+ Añadir tramo</button></div>
-  <div class='row' style='margin-top:12px'>
-    <button class='ctl on' id='savesess' style='flex:1'>Guardar</button>
-    <button class='ctl' id='canceledit'>Volver</button>
+<!-- DETALLE DE CLASE -->
+<div id='detail' class='view hidden'>
+  <div class='dhead'>
+    <button class='backb' id='dback'>‹</button>
+    <h1 id='dname'></h1>
   </div>
-  <div class='note'>Cada tramo tiene un nombre y una duración. La voz anuncia cada cambio de tramo y los últimos 10 segundos.</div>
+  <div class='dmeta'>
+    <span class='pill' id='ddur'></span>
+    <span class='lvl' id='dlvl'></span>
+    <span class='pill' id='dblocks' style='color:var(--mut);border-color:var(--line2)'></span>
+  </div>
+  <div class='klass' style='cursor:default'><div class='ds' id='ddesc' style='margin-top:0'></div></div>
+  <div class='sect'>Recorrido de la clase</div>
+  <div class='bigprof' id='dprof'></div>
+  <details class='card'>
+    <summary>Tramo a tramo</summary>
+    <div class='body'><div class='plist' id='dlist'></div></div>
+  </details>
+  <div class='note'>Antes de empezar: ajusta el sillín, sujeta los pies, ten agua cerca y ventila la habitación. Esfuerzo fuerte = solo frases cortas, siempre controlado. Pedalear de pie es opcional y solo si tu bici lo permite. La animación sigue tu plan: no mide tu pedaleo.</div>
+  <button class='cta' id='dstart'>Empezar clase</button>
+  <a class='cta2' href='https://open.spotify.com/' target='_blank' rel='noopener'>♫ &nbsp;Poner música en Spotify primero</a>
 </div>
 
+<!-- SESIÓN -->
 <div id='run' class='hidden'>
-  <div class='scene' id='scene'><canvas id='cv'></canvas><div class='badge' id='badge'></div></div>
-  <div class='prof hidden' id='prof'></div>
-  <div class='segname' id='segname'></div>
-  <div class='segnext' id='segnext'></div>
-  <div class='time' id='time'>00:00</div>
-  <div class='bar'><div class='fill' id='fill'></div></div>
-  <div class='state' id='state'>Lista</div>
-  <div class='cue' id='cue'></div>
-  <div class='controls'>
-    <button class='ctl on' id='start'>Empezar</button>
-    <button class='ctl' id='quit'>Terminar</button>
+  <div class='scene' id='scene'>
+    <canvas id='cv'></canvas>
+    <div class='fade'></div>
+    <div class='badge' id='badge'></div>
+    <div class='remtot' id='remtot'></div>
   </div>
-  <div class='wake' id='wake'>Pantalla: sin activar</div>
-  <div class='net' id='net'></div>
+  <div class='runbody'>
+    <div class='segname' id='segname'></div>
+    <div class='segnext' id='segnext'></div>
+    <div class='time' id='time'>00:00</div>
+    <div class='bar'><div class='fill' id='fill'></div></div>
+    <div class='cue' id='cue'></div>
+    <div class='prof hidden' id='prof'></div>
+    <div class='controls'>
+      <button class='ctl on' id='start'>Empezar</button>
+      <button class='ctl' id='quit'>Terminar</button>
+    </div>
+    <div class='wake' id='wake'>Pantalla: sin activar</div>
+    <div class='net' id='net'></div>
+    <details class='rlog'><summary>Avisos de la sesión</summary><div class='log' id='log'></div></details>
+  </div>
 </div>
 
-<div class='card'>
-  <h2>Música</h2>
-  <a class='ctl on' id='spotify' href='https://open.spotify.com/' target='_blank' rel='noopener' style='display:flex;align-items:center;justify-content:center;text-decoration:none'>Abrir Spotify</a>
-  <div class='note'>Pon tu lista en Spotify y vuelve a Cardio Bici antes de empezar: la música sigue sonando de fondo. Cambiar de app durante la sesión puede cortar la voz y dejar que la pantalla se apague. Prueba cómo se oyen las instrucciones con música usando «Prueba de voz · 1 min»; el móvil decide si baja el volumen de la música mientras habla la voz, y no se puede asegurar.</div>
+<!-- FIN -->
+<div id='finish' class='view hidden'>
+  <div class='check'>✓</div>
+  <h1>Sesión completada</h1>
+  <div class='fsess' id='fname'></div>
+  <div class='fdur' id='fdur'></div>
+  <div class='flbl'>pedaleando</div>
+  <button class='cta' id='fhome'>Volver al inicio</button>
+  <button class='cta2' id='fagain'>Repetir clase</button>
 </div>
 
-<div class='card'>
-  <h2>Voz</h2>
-  <div class='chips' id='voices'></div>
-  <button class='ctl on' id='test'>Probar voz</button>
-  <div class='note'>Sin internet: si la voz suena con el modo avión activado, tu móvil la tiene descargada. Si no, descárgala en Ajustes, «Conversión de texto a voz». Las voces «en el móvil» funcionan sin conexión; las «online» necesitan internet.</div>
+<!-- EDITOR -->
+<div id='editor' class='view hidden'>
+  <div class='dhead'>
+    <button class='backb' id='canceledit'>‹</button>
+    <h1 id='edtitle'>Nueva sesión</h1>
+  </div>
+  <div class='card'>
+    <div class='row'><input type='text' id='edname' placeholder='Nombre, p. ej. Intervalos del martes'></div>
+    <div id='edsegs'></div>
+    <div class='row'><button class='cta2' id='addseg' style='margin-top:0'>+ Añadir tramo</button></div>
+    <div class='note'>Cada tramo tiene un nombre y una duración. La voz anuncia cada cambio de tramo y los últimos 10 segundos.</div>
+    <button class='cta' id='savesess'>Guardar sesión</button>
+  </div>
 </div>
 
-<div class='log' id='log'></div>
+<div id='cdown' class='hidden'><div class='n' id='cdownn'>3</div></div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -203,57 +331,134 @@ const GUIDED = [
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  }
 ];
+
+/* ---- estado y datos locales ---- */
 let sessions = [];
 try{ sessions = JSON.parse(localStorage.getItem('cb_sessions')||'[]'); }catch(e){ sessions = []; }
 let history_ = [];
 try{ history_ = JSON.parse(localStorage.getItem('cb_history')||'[]'); }catch(e){ history_ = []; }
-
+function saveSessions(){ localStorage.setItem('cb_sessions', JSON.stringify(sessions)); }
+function saveHistory(){ localStorage.setItem('cb_history', JSON.stringify(history_)); }
 function sessDur(s){ return s.segs.reduce((a,g)=>a+g.secs,0); }
 
-function renderHome(){
-  const box = $('sessions'); box.innerHTML = '';
-  const gh = document.createElement('div'); gh.className='hist'; gh.style.marginBottom='4px';
-  gh.textContent = 'Guiadas'; box.append(gh);
-  [TEST, LIBRE].concat(GUIDED).forEach((s) => addSessRow(box, s, false));
-  if(sessions.length){
-    const mh = document.createElement('div'); mh.className='hist'; mh.style.margin='10px 0 4px';
-    mh.textContent = 'Mis sesiones'; box.append(mh);
-  }
-  sessions.forEach((s) => addSessRow(box, s, true));
-  renderHist();
+const VIEWS = ['home','detail','run','finish','editor'];
+function show(v){
+  VIEWS.forEach(x => $(x).classList.toggle('hidden', x !== v));
+  document.body.classList.toggle('running', v === 'run');
+  window.scrollTo(0,0);
 }
-function addSessRow(box, s, editable){
-    const d = document.createElement('div'); d.className='sess';
-    const nm = document.createElement('div'); nm.className='nm'; nm.textContent = s.name;
-    const dur = document.createElement('div'); dur.className='dur';
-    dur.textContent = s.free ? 'sin fin' : fmt(sessDur(s));
-    const go = document.createElement('button'); go.className='mini'; go.textContent='▶';
-    go.onclick = () => startSession(s);
-    if(s.desc){ nm.title = s.desc; dur.textContent = fmt(sessDur(s)); }
-    d.append(nm, dur, go);
-    if(editable){
-      const ed = document.createElement('button'); ed.className='mini'; ed.textContent='✎';
+
+/* niveles de esfuerzo por nombre de tramo */
+const LABELS = { 1:'Suave', 2:'Moderado', 3:'Fuerte' };
+function segLevel(seg){
+  const n = (seg.name||'').toLowerCase();
+  if(/de pie/.test(n)) return {lvl:2, climb:true};
+  if(/subida|colina|cuesta/.test(n)) return {lvl:3, climb:true};
+  if(/fuerte|sprint|intens|r[aá]pid/.test(n)) return {lvl:3, climb:false};
+  if(/suave|calent|calma|llano|recup|descanso|c[oó]modo/.test(n)) return {lvl:1, climb:false};
+  return {lvl:2, climb:false};
+}
+const LVLH = {1:34, 2:62, 3:100}, LVLC = {1:'#7bd49a', 2:'#f5c518', 3:'#ff8a65'};
+function segColor(r){ return r.climb ? '#ff6b6b' : LVLC[r.lvl]; }
+function segHeight(r){ return r.climb ? 100 : LVLH[r.lvl]; }
+function sessLevel(s){
+  let acc = 0, tot = 0;
+  s.segs.forEach(g => { const r = segLevel(g); acc += (r.climb ? 3 : r.lvl)*g.secs; tot += g.secs; });
+  const avg = tot ? acc/tot : 1;
+  return avg < 1.6 ? 1 : avg < 2.3 ? 2 : 3;
+}
+/* texto corto en pantalla para cada tramo (la voz usa el cue completo) */
+function shortCue(seg){
+  const n = (seg.name||'').toLowerCase();
+  if(/prueba de voz/.test(n)) return 'Escucha atentamente: así sonarán los avisos durante la clase.';
+  if(/calent/.test(n)) return 'Resistencia baja, subiendo el ritmo poco a poco.';
+  if(/de pie/.test(n)) return 'Solo si tu bici lo permite: levántate con suavidad, con soporte de resistencia.';
+  if(/subida|colina|cuesta/.test(n)) return 'Sube la resistencia: cuesta exigente pero controlada, pedaleo fluido.';
+  if(/fuerte|sprint|intens/.test(n)) return 'Un minuto fuerte, sin ir a tope y sin rebotar.';
+  if(/suave|llano|recup|descanso/.test(n)) return 'Baja la resistencia y afloja: recupera pedaleando suave.';
+  if(/postura/.test(n)) return 'Si quieres, cambia de postura un momento.';
+  if(/continuo|c[oó]modo/.test(n)) return 'Ritmo moderado y constante: puedes hablar pero no cantar.';
+  if(/calma/.test(n)) return 'Baja resistencia y ritmo poco a poco, sin detenerte de golpe.';
+  return seg.name + '. ' + fmt(seg.secs) + '.';
+}
+
+/* ---- inicio ---- */
+function miniprofHTML(s){
+  return s.segs.map(g => {
+    const r = segLevel(g);
+    return '<i style="flex:' + g.secs + ' 0 0;height:' + segHeight(r) + '%;background:' + segColor(r) + '"></i>';
+  }).join('');
+}
+function renderHome(){
+  const box = $('classes'); box.innerHTML = '';
+  GUIDED.forEach((s) => {
+    const b = document.createElement('button'); b.className = 'klass';
+    const lv = sessLevel(s);
+    b.innerHTML = '<div class="r1"><div class="nm">' + s.name + '</div><div class="pill">' + fmt(sessDur(s)) + '</div></div>'
+      + '<div class="ds">' + (s.desc || '') + '</div>'
+      + '<div class="r3"><div class="miniprof">' + miniprofHTML(s) + '</div><div class="lvl l' + lv + '">' + LABELS[lv] + '</div></div>';
+    b.onclick = () => openDetail(s);
+    box.append(b);
+  });
+  const mw = $('minesect'), mb = $('mine');
+  mb.innerHTML = '';
+  if(sessions.length){
+    mw.classList.remove('hidden');
+    sessions.forEach((s) => {
+      const d = document.createElement('div'); d.className = 'mine';
+      const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = s.name;
+      const dur = document.createElement('div'); dur.className = 'dur'; dur.textContent = fmt(sessDur(s));
+      const go = document.createElement('button'); go.className = 'iconb go'; go.textContent = '▶';
+      go.onclick = () => openDetail(s);
+      const ed = document.createElement('button'); ed.className = 'iconb'; ed.textContent = '✎';
       ed.onclick = () => openEditor(sessions.indexOf(s));
-      const del = document.createElement('button'); del.className='mini warn'; del.textContent='✕';
+      const del = document.createElement('button'); del.className = 'iconb warn'; del.textContent = '✕';
       del.onclick = () => { sessions.splice(sessions.indexOf(s),1); saveSessions(); renderHome(); };
-      d.append(ed, del);
-    }
-    box.append(d);
+      d.append(nm, dur, go, ed, del);
+      mb.append(d);
+    });
+  } else mw.classList.add('hidden');
+  renderHist();
 }
 function renderHist(){
   const h = $('hist');
   if(history_.length){
-    $('histcard').classList.remove('hidden');
+    $('histwrap').classList.remove('hidden');
     h.innerHTML = '';
     history_.slice(0,8).forEach(r => {
       const d = document.createElement('div');
-      d.textContent = r.date + ' · ' + r.name + ' · ' + fmt(r.secs);
+      const l = document.createElement('span'); l.textContent = r.date + ' · ' + r.name;
+      const rr = document.createElement('span'); rr.textContent = fmt(r.secs);
+      d.append(l, rr);
       h.append(d);
     });
-  } else { $('histcard').classList.add('hidden'); }
+  } else { $('histwrap').classList.add('hidden'); }
 }
-function saveSessions(){ localStorage.setItem('cb_sessions', JSON.stringify(sessions)); }
-function saveHistory(){ localStorage.setItem('cb_history', JSON.stringify(history_)); }
+$('gotest').onclick = () => startSession(TEST);
+$('golibre').onclick = () => startSession(LIBRE);
+
+/* ---- detalle ---- */
+let detailSess = null;
+function openDetail(s){
+  detailSess = s;
+  $('dname').textContent = s.name;
+  $('ddur').textContent = fmt(sessDur(s));
+  const lv = sessLevel(s);
+  const dl = $('dlvl'); dl.textContent = 'Intensidad ' + LABELS[lv].toLowerCase(); dl.className = 'lvl l' + lv;
+  $('dblocks').textContent = s.segs.length + ' tramos';
+  $('ddesc').textContent = s.desc || 'Tu sesión personalizada, tramo a tramo con avisos de voz.';
+  $('dprof').innerHTML = miniprofHTML(s);
+  const dl2 = $('dlist'); dl2.innerHTML = '';
+  s.segs.forEach(g => {
+    const r = document.createElement('div'); r.className = 'pr';
+    const a = document.createElement('span'); a.textContent = g.name;
+    const b = document.createElement('span'); b.textContent = fmt(g.secs);
+    r.append(a, b); dl2.append(r);
+  });
+  show('detail');
+}
+$('dback').onclick = () => { show('home'); renderHome(); };
+$('dstart').onclick = () => startSession(detailSess);
 
 /* ---- editor ---- */
 let editIdx = -1;
@@ -262,9 +467,9 @@ function segRow(seg){
   const nm = document.createElement('input'); nm.type='text'; nm.placeholder='Tramo (p. ej. suave)'; nm.value = seg?seg.name:'';
   const mi = document.createElement('input'); mi.className='num'; mi.type='number'; mi.min='0'; mi.max='180'; mi.value = seg?Math.floor(seg.secs/60):5;
   const se = document.createElement('input'); se.className='num'; se.type='number'; se.min='0'; se.max='59'; se.step='5'; se.value = seg?seg.secs%60:0;
-  const up = document.createElement('button'); up.className='mini'; up.textContent='↑';
-  const dn = document.createElement('button'); dn.className='mini'; dn.textContent='↓';
-  const rm = document.createElement('button'); rm.className='mini warn'; rm.textContent='✕';
+  const up = document.createElement('button'); up.className='iconb'; up.textContent='↑';
+  const dn = document.createElement('button'); dn.className='iconb'; dn.textContent='↓';
+  const rm = document.createElement('button'); rm.className='iconb warn'; rm.textContent='✕';
   up.onclick = () => { const p=row.parentNode; if(row.previousElementSibling) p.insertBefore(row, row.previousElementSibling); };
   dn.onclick = () => { const p=row.parentNode; if(row.nextElementSibling) p.insertBefore(row.nextElementSibling, row); };
   rm.onclick = () => row.remove();
@@ -278,11 +483,11 @@ function openEditor(idx){
   const box = $('edsegs'); box.innerHTML='';
   const segs = idx >= 0 ? sessions[idx].segs : [{name:'Tramo 1',secs:300},{name:'Tramo 2',secs:60}];
   segs.forEach(sg => box.append(segRow(sg)));
-  $('home').classList.add('hidden'); $('editor').classList.remove('hidden');
+  show('editor');
 }
 $('newbtn').onclick = () => openEditor(-1);
 $('addseg').onclick = () => $('edsegs').append(segRow(null));
-$('canceledit').onclick = () => { $('editor').classList.add('hidden'); $('home').classList.remove('hidden'); };
+$('canceledit').onclick = () => { show('home'); renderHome(); };
 $('savesess').onclick = () => {
   const name = $('edname').value.trim() || 'Mi sesión';
   const segs = [];
@@ -295,15 +500,8 @@ $('savesess').onclick = () => {
   if(!segs.length) return;
   if(editIdx >= 0) sessions[editIdx] = {name, segs}; else sessions.push({name, segs});
   saveSessions();
-  $('editor').classList.add('hidden'); $('home').classList.remove('hidden');
-  renderHome();
+  show('home'); renderHome();
 };
-
-/* ---- motor de sesión ---- */
-let cur = null, running = false, done = false, timer = null;
-let elapsedBase = 0, startTs = 0, segAnnounced = -1, lastCueMin = -1, tenWarned = {};
-let wakeLock = null, voiceName = '';
-
 function logLine(t){ const d=document.createElement('div'); d.textContent=t; $('log').prepend(d); }
 function beep(){
   try{
@@ -336,16 +534,18 @@ function loadVoices(){
     const b = document.createElement('button');
     b.className = 'chip' + (v.name === voiceName ? ' on' : '');
     b.textContent = v.name.replace('Microsoft ','').replace('Google ','') + ' · ' + (v.localService ? 'en el móvil' : 'online');
-    b.onclick = () => { voiceName = v.name; loadVoices(); };
+    b.onclick = () => { voiceName = v.name; try{ localStorage.setItem('cb_voice', v.name); }catch(e){} loadVoices(); };
     box.appendChild(b);
   });
+  if(!voiceName){ try{ const saved = localStorage.getItem('cb_voice'); if(saved && all.some(v => v.name === saved)) voiceName = saved; }catch(e){} }
   if(!voiceName && list.length){ const pref = es.find(v => v.localService) || es[0]; if(pref) voiceName = pref.name; }
 }
 if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 
-function allowStand(){ return localStorage.getItem('cb_stand') === '1'; }
-$('standcb').checked = allowStand();
-$('standcb').onchange = (e) => localStorage.setItem('cb_stand', e.target.checked ? '1' : '0');
+/* ---- motor de sesión ---- */
+let cur = null, running = false, done = false, timer = null;
+let elapsedBase = 0, startTs = 0, segAnnounced = -1, lastCueMin = -1, tenWarned = {};
+let wakeLock = null, counted = false;
 
 async function requestWake(){
   if(!('wakeLock' in navigator)){ $('wake').textContent = 'Pantalla: no se puede mantener encendida desde aquí'; return; }
@@ -359,7 +559,6 @@ function releaseWake(){ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock
 document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible' && running) requestWake(); });
 
 function totalElapsed(){ return elapsedBase + (running ? (Date.now()-startTs)/1000 : 0); }
-
 function segAt(t){
   let acc = 0;
   for(let i=0;i<cur.segs.length;i++){
@@ -374,10 +573,12 @@ function tick(){
   if(cur.free){
     $('time').textContent = fmt(t);
     $('fill').style.width = '100%';
+    $('remtot').textContent = fmt(t);
     const m = Math.floor(t/60);
     if(m >= 5 && m % 5 === 0 && m !== lastCueMin){
       lastCueMin = m;
-      speak('Llevas ' + durEs(m*60) + '.', true);
+      setCue('Llevas ' + durEs(m*60) + '.');
+      speak('Llevas ' + durEs(m*60) + '.');
     }
     return;
   }
@@ -393,7 +594,8 @@ function tick(){
     const nx = cur.segs[s.i+1];
     const nxName = nx && nx.stand && !allowStand() ? 'Sigue sentado' : (nx ? nx.name : null);
     $('segnext').textContent = nx ? ('Siguiente: ' + nxName + ' · ' + fmt(nx.secs)) : 'Último tramo';
-    speak(seated ? CUE_SENTADO30 : (s.seg.cue ? s.seg.cue : (s.seg.name + '. ' + durEs(s.seg.secs) + '.')), true);
+    setCue(seated ? 'Sigue sentado, al ritmo que llevabas.' : shortCue(s.seg), true);
+    speak(seated ? CUE_SENTADO30 : (s.seg.cue ? s.seg.cue : (s.seg.name + '. ' + durEs(s.seg.secs) + '.')));
   }
   if(s.left <= 10 && s.left > 0 && !tenWarned[s.i]){
     tenWarned[s.i] = true;
@@ -402,47 +604,70 @@ function tick(){
     if(busy){ logLine('🔔 Diez segundos (solo beep, la voz sigue con la orden).'); }
     else speak('Diez segundos.');
   }
-  $('time').textContent = fmt(rem);
-  $('fill').style.width = Math.min(100, t/total*100) + '%';
+  $('time').textContent = fmt(s.left);
+  $('remtot').textContent = 'Quedan ' + fmt(rem);
+  $('fill').style.width = Math.min(100, s.into/s.seg.secs*100) + '%';
+}
+
+function setCue(txt, flash){
+  const c = $('cue');
+  c.textContent = txt;
+  if(flash){ c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); }
 }
 
 function startSession(s){
   $('test').disabled = true;
-  document.body.classList.add('running');
   sceneOpen(s);
-  cur = s; running = false; done = false; elapsedBase = 0; segAnnounced = -1; lastCueMin = -1; tenWarned = {};
+  cur = s; running = false; done = false; counted = false;
+  elapsedBase = 0; segAnnounced = -1; lastCueMin = -1; tenWarned = {};
   clearInterval(timer);
   $('log').innerHTML = '';
-  $('home').classList.add('hidden'); $('editor').classList.add('hidden');
-  $('run').classList.remove('hidden');
-  $('segname').textContent = s.free ? 'Libre' : '';
-  $('segnext').textContent = s.free ? '' : '';
-  $('time').textContent = s.free ? '00:00' : fmt(sessDur(s));
+  show('run');
+  $('segname').textContent = s.free ? 'Libre' : s.name;
+  $('segnext').textContent = s.free ? 'Pedalea a tu ritmo' : (s.segs.length + ' tramos · ' + fmt(sessDur(s)));
+  $('time').textContent = s.free ? '00:00' : fmt(s.segs[0].secs);
+  $('remtot').textContent = s.free ? '' : 'Quedan ' + fmt(sessDur(s));
   $('fill').style.width = '0';
-  $('state').textContent = 'Lista'; $('start').textContent = 'Empezar';
-  window.scrollTo(0,0);
+  setCue(s.free ? 'Sin tramos: pedalea a tu ritmo, con avisos cada 5 minutos.' : 'Todo listo. Ponte cómodo y pulsa Empezar.');
 }
 function start(){
-  if(done){ startSession(cur); }
+  if(running) return;
+  if(!counted){ counted = true; countdown3(reallyStart); }
+  else reallyStart();
+}
+function reallyStart(){
   startTs = Date.now(); running = true;
-  $('state').textContent = 'En marcha'; $('start').textContent = 'Pausar';
+  $('start').textContent = 'Pausar';
   timer = setInterval(tick, 250); requestWake();
+}
+function countdown3(cb){
+  const ov = $('cdown'), n = $('cdownn');
+  ov.classList.remove('hidden');
+  let k = 3;
+  const step = () => {
+    if(k === 0){ ov.classList.add('hidden'); cb(); return; }
+    n.textContent = k;
+    n.classList.remove('n'); void n.offsetWidth; n.classList.add('n');
+    beep();
+    k--;
+    setTimeout(step, 900);
+  };
+  step();
 }
 function stop(manual = true){
   if(running) elapsedBase += (Date.now()-startTs)/1000;
   running = false; clearInterval(timer);
   if('speechSynthesis' in window) speechSynthesis.cancel();
-  $('state').textContent = manual ? 'En pausa' : $('state').textContent;
   $('start').textContent = 'Reanudar';
   if(manual) releaseWake();
 }
 function finish(){
   $('test').disabled = false;
   stop(false); done = true;
-  $('state').textContent = 'Completada'; $('start').textContent = 'Empezar';
   releaseWake();
-  speak('Sesión completada.', true);
+  speak('Sesión completada. Buen trabajo.');
   pushHistory(sessDur(cur));
+  showFinish(cur.name, sessDur(cur));
 }
 function pushHistory(secs){
   const d = new Date();
@@ -451,6 +676,14 @@ function pushHistory(secs){
   history_ = history_.slice(0,30);
   saveHistory();
 }
+function showFinish(name, secs){
+  $('fname').textContent = name;
+  $('fdur').textContent = fmt(secs);
+  sceneClose();
+  show('finish');
+}
+$('fhome').onclick = () => { show('home'); renderHome(); };
+$('fagain').onclick = () => startSession(cur);
 $('start').onclick = () => running ? stop(true) : start();
 $('quit').onclick = () => {
   $('test').disabled = false;
@@ -458,40 +691,35 @@ $('quit').onclick = () => {
   const wasRunning = running || elapsedBase > 0;
   if(running) stop(true);
   if(cur && cur.free && wasRunning && t >= 60){
-    speak('Sesión terminada. ' + durEs(Math.round(t/60)*60) + '.', true);
+    speak('Sesión terminada. ' + durEs(Math.round(t/60)*60) + '.');
     pushHistory(t);
+    showFinish(cur.name, t);
+    return;
   }
   running = false; clearInterval(timer); releaseWake();
-  $('run').classList.add('hidden'); $('home').classList.remove('hidden');
-  document.body.classList.remove('running'); sceneClose();
-  renderHome();
+  sceneClose();
+  show('home'); renderHome();
 };
-$('test').onclick = () => speak('Prueba de voz en español. Si me oyes, la voz funciona.');
 
 function netStatus(){
   $('net').textContent = navigator.onLine ? '' : 'Sin conexión: la app sigue funcionando';
   $('net').className = 'net ' + (navigator.onLine ? '' : 'ok');
 }
 window.addEventListener('online', netStatus); window.addEventListener('offline', netStatus); netStatus();
-
 /* ---- escena: ciclista y paisaje (dibujo propio, canvas 2D) ---- */
-const SC = { dist:0, speed:0, slope:0, wheel:0, crank:0, last:0, raf:0, lvl:2, climb:false, open:false, offs:[] };
+function allowStand(){ return localStorage.getItem('cb_stand') === '1'; }
+$('standcb').checked = allowStand();
+$('standcb').onchange = (e) => localStorage.setItem('cb_stand', e.target.checked ? '1' : '0');
+const SC = { dist:0, speed:0, slope:0, wheel:0, crank:0, last:0, raf:0, lvl:2, climb:false, open:false, offs:[], stand:false, standF:0 };
 SC.on = localStorage.getItem('cb_scene') !== '0' && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches && localStorage.getItem('cb_scene') === null);
 $('scenecb').checked = SC.on;
 $('scenecb').onchange = (e) => { SC.on = e.target.checked; localStorage.setItem('cb_scene', SC.on ? '1' : '0'); };
-const LABELS = { 1:'Suave', 2:'Moderado', 3:'Fuerte' };
-function segLevel(seg){
-  const n = (seg.name||'').toLowerCase();
-  if(/de pie/.test(n)) return {lvl:2, climb:true};
-  if(/subida|colina|cuesta/.test(n)) return {lvl:3, climb:true};
-  if(/fuerte|sprint|intens|r[aá]pid/.test(n)) return {lvl:3, climb:false};
-  if(/suave|calent|calma|llano|recup|descanso|c[oó]modo/.test(n)) return {lvl:1, climb:false};
-  return {lvl:2, climb:false};
-}
 function sceneSeg(seg){
   const r = seg ? segLevel(seg) : {lvl:2, climb:false};
   SC.lvl = r.lvl; SC.climb = r.climb;
+  SC.stand = !!(seg && seg.stand && allowStand());
   const b = $('badge');
+  if(SC.stand){ b.textContent = 'De pie (opcional)'; b.className = 'badge l2'; return; }
   b.textContent = r.climb ? 'Subida' : LABELS[r.lvl];
   b.className = 'badge ' + (r.climb ? 'cl' : 'l' + r.lvl);
 }
@@ -548,9 +776,10 @@ function drawWheel(c, x, y, ang){
   c.fillStyle = '#e8e4d6'; c.beginPath(); c.arc(x,y,2.6,0,7); c.fill();
 }
 function drawCyclist(c, lvl, t){
-  const bob = Math.sin(SC.crank*2)*.9*Math.min(1,SC.speed/60);
+  const f = SC.standF || 0;
+  const bob = Math.sin(SC.crank*2)*.9*Math.min(1,SC.speed/60)*(1-.4*f);
   const lean = lvl === 3 ? 1 : 0;
-  const BB = [-4,-26], hip = [-24,-84+bob], sh = [14+lean*6,-111+lean*7+bob], hand = [47,-77];
+  const BB = [-4,-26], hip = [-24+9*f,-84-15*f+bob], sh = [14+lean*6+15*f,-111+lean*7-6*f+bob], hand = [47+4*f,-77-4*f];
   const jers = '#f5c518', short = '#23212b', skin = '#e0b08a';
   const pedal = (ph) => [BB[0] + 17*Math.cos(SC.crank+ph), BB[1] + 17*Math.sin(SC.crank+ph)];
   const leg = (ph, col, wcol) => {
@@ -662,6 +891,7 @@ function sceneFrame(ts){
   const tgtC = running ? CAD[SC.lvl] * (SC.climb ? .85 : 1) : 0;
   const kk = 1 - Math.exp(-dt*2.2);
   SC.speed += (tgtV - SC.speed)*kk;
+  SC.standF += ((SC.stand && running ? 1 : 0) - SC.standF)*(1 - Math.exp(-dt*3));
   SC.cad = (SC.cad||0) + (tgtC - (SC.cad||0))*kk;
   SC.slope += ((SC.climb ? .17 : 0) - SC.slope)*(1 - Math.exp(-dt*2.5));
   SC.dist += SC.speed*dt; SC.wheel += SC.speed*dt/32; SC.crank += SC.cad*dt*Math.PI*2;
