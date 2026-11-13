@@ -502,6 +502,7 @@ $('savesess').onclick = () => {
   saveSessions();
   show('home'); renderHome();
 };
+let voiceName = '';
 function logLine(t){ const d=document.createElement('div'); d.textContent=t; $('log').prepend(d); }
 function beep(){
   try{
