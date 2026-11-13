@@ -298,12 +298,12 @@ const CUE_POSTURA = 'Si quieres, cambia de postura treinta segundos. Levántate 
 const CUE_CALMA = 'Siéntate con suavidad si estabas de pie. Baja la resistencia y el ritmo poco a poco, sin detenerte de golpe. Si notas dolor, mareo o malestar inusual, para el ejercicio.';
 const CUE_SENTADO30 = 'Sigue sentado. Mantén el ritmo y la resistencia; treinta segundos.';
 const GUIDED = [
- { name:'Suave · 20 min', builtin:true, desc:'Continua y tranquila, todo sentado', segs:[
+ { name:'Suave · 20 min', builtin:true, lvl:1, desc:'Continua y tranquila, todo sentado', segs:[
    G('Calentamiento', 300, 'Empezamos sentados, resistencia baja, subiendo el ritmo poco a poco. Cinco minutos de calentamiento.'),
    G('Cómodo', 600, 'Sentado, ritmo cómodo: puedes mantener una conversación. Diez minutos.'),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
- { name:'Intervalos · 25 min', builtin:true, desc:'5× 1 min fuerte sentado + 2 suaves', segs:[
+ { name:'Intervalos · 25 min', builtin:true, lvl:2, desc:'5× 1 min fuerte sentado + 2 suaves', segs:[
    G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, resistencia baja, en progresión.'),
    G('Fuerte 1', 60, CUE_FUERTE), G('Suave 1', 120, CUE_RECUPERA),
    G('Fuerte 2', 60, CUE_FUERTE), G('Suave 2', 120, CUE_RECUPERA),
@@ -312,7 +312,7 @@ const GUIDED = [
    G('Fuerte 5', 60, CUE_FUERTE), G('Suave 5', 120, CUE_RECUPERA),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
- { name:'Colinas · 30 min', builtin:true, desc:'4× subida de 3 min, de pie opcional 30 s', segs:[
+ { name:'Colinas · 30 min', builtin:true, lvl:3, desc:'4× subida de 3 min, de pie opcional 30 s', segs:[
    G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
    G('Subida 1', 150, CUE_SUBIDA), G('De pie opcional 1', 30, CUE_DEPIE, true), G('Llano 1', 120, CUE_RECUPERA),
    G('Subida 2', 150, CUE_SUBIDA), G('De pie opcional 2', 30, CUE_DEPIE, true), G('Llano 2', 120, CUE_RECUPERA),
@@ -320,7 +320,7 @@ const GUIDED = [
    G('Subida 4', 150, CUE_SUBIDA), G('De pie opcional 4', 30, CUE_DEPIE, true), G('Llano 4', 120, CUE_RECUPERA),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
- { name:'Fondo · 45 min', builtin:true, desc:'Larga y continua, sentada', segs:[
+ { name:'Fondo · 45 min', builtin:true, lvl:2, desc:'Larga y continua, sentada', segs:[
    G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
    G('Continuo 1', 390, 'Sentado, ritmo moderado y constante; puedes hablar pero no cantar.'),
    G('Postura 1', 30, CUE_POSTURA, true),
@@ -362,8 +362,9 @@ const LVLH = {1:34, 2:62, 3:100}, LVLC = {1:'#7bd49a', 2:'#f5c518', 3:'#ff8a65'}
 function segColor(r){ return r.climb ? '#ff6b6b' : LVLC[r.lvl]; }
 function segHeight(r){ return r.climb ? 100 : LVLH[r.lvl]; }
 function sessLevel(s){
+  if(s.lvl) return s.lvl;
   let acc = 0, tot = 0;
-  s.segs.forEach(g => { const r = segLevel(g); acc += (r.climb ? 3 : r.lvl)*g.secs; tot += g.secs; });
+  s.segs.forEach(g => { if(/calent|calma/i.test(g.name||'')) return; const r = segLevel(g); acc += (r.climb ? 3 : r.lvl)*g.secs; tot += g.secs; });
   const avg = tot ? acc/tot : 1;
   return avg < 1.6 ? 1 : avg < 2.3 ? 2 : 3;
 }
