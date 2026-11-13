@@ -231,7 +231,7 @@ input.num{ width:60px; text-align:center; }
       <button class='ctl on' id='start'>Empezar</button>
       <button class='ctl' id='quit'>Terminar</button>
     </div>
-    <div class='wake' id='wake'>Pantalla: sin activar</div>
+    <div class='wake' id='wake'>Pantalla: se mantendrá encendida al empezar</div>
     <div class='net' id='net'></div>
     <details class='rlog'><summary>Avisos de la sesión</summary><div class='log' id='log'></div></details>
   </div>
@@ -550,14 +550,14 @@ let elapsedBase = 0, startTs = 0, segAnnounced = -1, lastCueMin = -1, tenWarned 
 let wakeLock = null, counted = false;
 
 async function requestWake(){
-  if(!('wakeLock' in navigator)){ $('wake').textContent = 'Pantalla: no se puede mantener encendida desde aquí'; return; }
+  if(!('wakeLock' in navigator)){ $('wake').textContent = 'Pantalla: no puedo mantenerla encendida desde la app; si se apaga, tócala de vez en cuando'; return; }
   try{
     wakeLock = await navigator.wakeLock.request('screen');
     $('wake').textContent = 'Pantalla: se mantiene encendida';
-    wakeLock.addEventListener('release', () => { $('wake').textContent = 'Pantalla: liberada'; });
-  }catch(e){ $('wake').textContent = 'Pantalla: no disponible (' + (e && e.message ? e.message : 'rechazada') + ')'; }
+    wakeLock.addEventListener('release', () => { $('wake').textContent = 'Pantalla: se apagará sola con normalidad'; });
+  }catch(e){ $('wake').textContent = 'Pantalla: no puedo mantenerla encendida desde la app; si se apaga, tócala de vez en cuando'; }
 }
-function releaseWake(){ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; } $('wake').textContent = 'Pantalla: sin activar'; }
+function releaseWake(){ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; } $('wake').textContent = 'Pantalla: se mantendrá encendida al empezar'; }
 document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible' && running) requestWake(); });
 
 function totalElapsed(){ return elapsedBase + (running ? (Date.now()-startTs)/1000 : 0); }
