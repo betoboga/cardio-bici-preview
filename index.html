@@ -756,6 +756,7 @@ function startSession(s){
   $('log').innerHTML = '';
   show('run');
   $('time').classList.remove('endpulse');
+  $('start').textContent = 'Empezar';
   $('segicon').textContent = s.free ? '🚴' : '';
   $('segname').textContent = s.free ? 'Libre' : s.name;
   $('segnext').textContent = s.free ? 'Pedalea a tu ritmo' : (s.segs.length + ' tramos · ' + fmt(sessDur(s)));
