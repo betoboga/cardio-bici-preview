@@ -1,4 +1,4 @@
-const CACHE = 'cardio-bici-preview-v17';
+const CACHE = 'cardio-bici-preview-v18';
 const ASSETS = [
   './',
   './index.html',
