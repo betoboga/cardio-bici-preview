@@ -22,9 +22,12 @@ button{ font:inherit; color:inherit; }
 @keyframes fadein{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
 
 /* cabecera */
-header.top{ padding:22px 16px 6px; }
-header.top h1{ font-size:26px; font-weight:800; margin:0; letter-spacing:-.01em; }
-header.top .sub{ color:var(--mut); font-size:13px; margin-top:3px; }
+header.hero{ position:relative; height:150px; margin:0 -16px 16px; overflow:hidden; background:#1b1740; }
+header.hero canvas{ display:block; width:100%; height:100%; }
+header.hero .hgrad{ position:absolute; inset:0; background:linear-gradient(rgba(10,9,7,.02) 30%, rgba(10,9,7,.78)); }
+header.hero .htxt{ position:absolute; left:18px; bottom:12px; right:18px; }
+header.hero h1{ margin:0; font-size:27px; font-weight:800; letter-spacing:-.01em; text-shadow:0 2px 10px rgba(0,0,0,.55); }
+header.hero p{ margin:3px 0 0; font-size:12.5px; color:#efe9d8; text-shadow:0 1px 6px rgba(0,0,0,.65); }
 .sect{ font-size:13px; font-weight:700; color:var(--mut); text-transform:uppercase; letter-spacing:.08em; margin:26px 2px 10px; }
 
 /* tarjetas de clase */
@@ -71,8 +74,8 @@ details.card .body{ padding:0 16px 14px; }
 .hchart .hbar{ width:100%; border-radius:6px 6px 3px 3px; background:var(--yel); min-height:3px; opacity:.85; }
 .hchart .hbar.zero{ background:var(--line); opacity:.5; }
 .hchart .hl{ font-size:10px; color:var(--mut); }
+.klass.sug2{ border-color:rgba(245,197,24,.55); box-shadow:inset 0 0 0 1px rgba(245,197,24,.22), 0 4px 22px rgba(245,197,24,.07); }
 .sug{ display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px; background:var(--yel); color:#14110a; font-size:10px; font-weight:800; letter-spacing:.03em; vertical-align:2px; }
-.segicon{ font-size:26px; line-height:1; margin:2px 0 6px; min-height:30px; }
 #time.endpulse{ color:var(--red); animation:endp .5s ease-in-out infinite alternate; }
 @keyframes endp{ from{ transform:scale(1); } to{ transform:scale(1.08); } }
 #paused{ position:fixed; inset:0; z-index:60; background:rgba(10,9,7,.82); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; }
@@ -108,13 +111,18 @@ details.card .body{ padding:0 16px 14px; }
 
 /* sesión */
 #run{ padding:0; }
-#run .scene{ position:relative; width:100%; height:clamp(210px,38vh,320px); overflow:hidden; background:#1b1740; }
+#run .scene{ position:relative; width:100%; height:clamp(330px,54vh,470px); overflow:hidden; background:#1b1740; }
 #run .scene canvas{ display:block; width:100%; height:100%; }
-#run .scene .fade{ position:absolute; inset:auto 0 0 0; height:70px; background:linear-gradient(transparent,var(--bg)); pointer-events:none; }
+#run .scene .fade{ position:absolute; inset:auto 0 0 0; height:170px; background:linear-gradient(transparent, rgba(8,7,5,.9)); pointer-events:none; }
+.sover{ position:absolute; left:0; right:0; bottom:12px; display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:0 18px; text-align:left; pointer-events:none; }
+.sover .segname{ font-size:22px; text-shadow:0 2px 8px rgba(0,0,0,.6); }
+.sover .segnext{ text-shadow:0 1px 6px rgba(0,0,0,.6); }
+.sover .time{ font-size:62px; margin:0; line-height:1; text-shadow:0 2px 16px rgba(0,0,0,.6); }
+.sbar{ position:absolute; left:0; right:0; bottom:0; height:5px; max-width:none; background:rgba(255,255,255,.14); border-radius:0; margin:0; }
 .badge{ position:absolute; top:12px; left:12px; padding:6px 13px; border-radius:999px; font-size:13px; font-weight:700; background:rgba(15,14,11,.66); border:1px solid rgba(255,255,255,.16); letter-spacing:.02em; backdrop-filter:blur(4px); }
 .badge.l1{ color:var(--grn); } .badge.l2{ color:var(--yel); } .badge.l3{ color:var(--org); } .badge.cl{ color:var(--red); }
 .remtot{ position:absolute; top:12px; right:12px; padding:6px 12px; border-radius:999px; font-size:12.5px; font-weight:700; background:rgba(15,14,11,.66); border:1px solid rgba(255,255,255,.14); font-variant-numeric:tabular-nums; }
-.runbody{ padding:14px 20px 0; text-align:center; }
+.runbody{ padding:12px 20px 0; text-align:center; }
 .segname{ font-size:23px; font-weight:800; min-height:28px; letter-spacing:-.01em; }
 .segnext{ color:var(--mut); font-size:13px; margin-top:4px; min-height:17px; }
 .time{ font-size:84px; line-height:1.05; font-weight:800; color:var(--yel); font-variant-numeric:tabular-nums; letter-spacing:-.02em; margin-top:6px; }
@@ -127,6 +135,7 @@ details.card .body{ padding:0 16px 14px; }
 .prof i{ display:block; border-radius:3px 3px 0 0; min-width:2px; opacity:.5; }
 .prof i.past{ opacity:1; }
 .prof .ph{ position:absolute; bottom:0; top:-4px; width:3px; background:#fff; border-radius:2px; box-shadow:0 0 8px rgba(255,255,255,.7); pointer-events:none; }
+.prof .ph::after{ content:''; position:absolute; top:-6px; left:-4.5px; width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 0 12px rgba(255,255,255,.95); }
 .controls{ display:flex; gap:12px; justify-content:center; margin:18px 0 6px; }
 .ctl{ background:var(--panel); color:var(--txt); border:1px solid var(--line2); border-radius:18px; padding:15px 26px; min-height:56px; min-width:140px; font-size:16.5px; cursor:pointer; }
 .ctl.on{ background:var(--yel); color:#141310; border-color:var(--yel); font-weight:800; }
@@ -144,11 +153,21 @@ details.rlog summary::-webkit-details-marker{ display:none; }
 @keyframes pop{ 0%{ transform:scale(1.5); opacity:0;} 25%{ transform:scale(1); opacity:1;} 85%{ opacity:1;} 100%{ opacity:.2;} }
 
 /* fin de sesión */
-#finish{ text-align:center; padding-top:70px; }
-#finish .check{ width:92px; height:92px; border-radius:50%; background:rgba(245,197,24,.12); border:2px solid var(--yel); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:44px; color:var(--yel); animation:pop .6s ease; }
+#finish{ text-align:center; }
+#finish .fscene{ position:relative; height:180px; margin:0 -16px; overflow:hidden; background:#1c2547; }
+#finish .fscene canvas{ display:block; width:100%; height:100%; }
+#finish .fscene .fade{ position:absolute; inset:auto 0 0 0; height:110px; background:linear-gradient(transparent,var(--bg)); }
+#finish .fbody{ padding:0 4px 20px; }
+#finish .fstats{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:20px 0 6px; }
+#finish .fstats > div{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:11px 8px; }
+#finish .fstats b{ display:block; font-size:20px; font-weight:800; }
+#finish .fstats span{ font-size:10.5px; color:var(--mut); }
+#finish .fprof{ margin:16px 0 20px; }
+#finish .fnextlbl{ font-size:12px; color:var(--mut); margin:0 0 8px; }
+#finish .check{ width:76px; height:76px; border-radius:50%; background:rgba(245,197,24,.14); border:2px solid var(--yel); display:flex; align-items:center; justify-content:center; margin:-38px auto 14px; font-size:36px; color:var(--yel); animation:pop .6s ease; position:relative; }
 #finish h1{ font-size:26px; font-weight:800; margin:0 0 6px; }
 #finish .fsess{ color:var(--mut); font-size:15px; }
-#finish .fdur{ font-size:64px; font-weight:800; color:var(--yel); font-variant-numeric:tabular-nums; margin-top:18px; }
+#finish .fdur{ font-size:58px; font-weight:800; color:var(--yel); font-variant-numeric:tabular-nums; margin-top:14px; }
 #finish .flbl{ color:var(--mut); font-size:13px; }
 
 /* editor */
@@ -158,16 +177,17 @@ details.rlog summary::-webkit-details-marker{ display:none; }
 .row input[type=text]{ flex:1; min-width:0; }
 input{ background:#12110e; color:var(--txt); border:1px solid var(--line2); border-radius:10px; padding:11px; font:inherit; font-size:15px; }
 input.num{ width:60px; text-align:center; }
-@media (max-width:400px){ .time{ font-size:70px; } }
+@media (max-width:400px){ .time{ font-size:70px; } .sover .time{ font-size:50px; } .sover .segname{ font-size:19px; } }
 </style>
 </head>
 <body>
 
 <!-- INICIO -->
 <div id='home' class='view'>
-  <header class='top'>
-    <h1>Cardio Bici</h1>
-    <div class='sub'>Tus clases de bici estática, guiadas por voz. La intensidad la marcas tú o tu plan.</div>
+  <header class='hero'>
+    <canvas id='hcv'></canvas>
+    <div class='hgrad'></div>
+    <div class='htxt'><h1>Cardio Bici</h1><p>Tus clases de bici estática, guiadas por voz. La intensidad la marcas tú o tu plan.</p></div>
   </header>
 
   <div class='stats hidden' id='stats'>
@@ -248,13 +268,16 @@ input.num{ width:60px; text-align:center; }
     <div class='fade'></div>
     <div class='badge' id='badge'></div>
     <div class='remtot' id='remtot'></div>
+    <div class='sover'>
+      <div class='scol'>
+        <div class='segname' id='segname'></div>
+        <div class='segnext' id='segnext'></div>
+      </div>
+      <div class='time' id='time'>00:00</div>
+    </div>
+    <div class='bar sbar'><div class='fill' id='fill'></div></div>
   </div>
   <div class='runbody'>
-    <div class='segicon' id='segicon'></div>
-    <div class='segname' id='segname'></div>
-    <div class='segnext' id='segnext'></div>
-    <div class='time' id='time'>00:00</div>
-    <div class='bar'><div class='fill' id='fill'></div></div>
     <div class='cue' id='cue'></div>
     <div class='prof hidden' id='prof'></div>
     <div class='controls'>
@@ -269,13 +292,20 @@ input.num{ width:60px; text-align:center; }
 
 <!-- FIN -->
 <div id='finish' class='view hidden'>
-  <div class='check'>✓</div>
-  <h1>Sesión completada</h1>
-  <div class='fsess' id='fname'></div>
-  <div class='fdur' id='fdur'></div>
-  <div class='flbl'>pedaleando</div>
-  <button class='cta' id='fhome'>Volver al inicio</button>
-  <button class='cta2' id='fagain'>Repetir clase</button>
+  <div class='fscene'><canvas id='fcv'></canvas><div class='fade'></div></div>
+  <div class='fbody'>
+    <div class='check'>✓</div>
+    <h1>Sesión completada</h1>
+    <div class='fsess' id='fname'></div>
+    <div class='fdur' id='fdur'></div>
+    <div class='flbl'>pedaleando</div>
+    <div class='fstats' id='fstats'></div>
+    <div class='miniprof fprof' id='fprof'></div>
+    <div class='fnextlbl'>Tu próxima clase</div>
+    <button class='cta' id='fnext'></button>
+    <button class='cta2' id='fagain'>Repetir esta clase</button>
+    <button class='cta2' id='fhome'>Volver al inicio</button>
+  </div>
 </div>
 
 <!-- EDITOR -->
@@ -494,7 +524,7 @@ function renderHome(){
   const sugName = suggestedClass();
   const box = $('classes'); box.innerHTML = '';
   GUIDED.forEach((s) => {
-    const b = document.createElement('button'); b.className = 'klass';
+    const b = document.createElement('button'); b.className = 'klass' + (s.name === sugName ? ' sug2' : '');
     const lv = sessLevel(s);
     b.innerHTML = '<div class="r1"><div class="nm">' + s.name + (s.name === sugName ? '<span class="sug">Sugerida hoy</span>' : '') + '</div><div class="pill">' + fmt(sessDur(s)) + '</div></div>'
       + '<div class="ds">' + (s.desc || '') + '</div>'
@@ -721,7 +751,6 @@ function tick(){
     buzz(60);
     const seated = s.seg.stand && !allowStand();
     $('segname').textContent = seated ? 'Sigue sentado' : s.seg.name;
-    $('segicon').textContent = seated ? '🪑' : (s.seg.stand ? '🧍' : (segLevel(s.seg).climb ? '⛰️' : (segLevel(s.seg).lvl === 3 ? '⚡' : '🚴')));
     const nx = cur.segs[s.i+1];
     const nxName = nx && nx.stand && !allowStand() ? 'Sigue sentado' : (nx ? nx.name : null);
     $('segnext').textContent = nx ? ('Siguiente: ' + nxName + ' · ' + fmt(nx.secs)) : 'Último tramo';
@@ -757,7 +786,6 @@ function startSession(s){
   show('run');
   $('time').classList.remove('endpulse');
   $('start').textContent = 'Empezar';
-  $('segicon').textContent = s.free ? '🚴' : '';
   $('segname').textContent = s.free ? 'Libre' : s.name;
   $('segnext').textContent = s.free ? 'Pedalea a tu ritmo' : (s.segs.length + ' tramos · ' + fmt(sessDur(s)));
   $('time').textContent = s.free ? '00:00' : fmt(s.segs[0].secs);
@@ -820,8 +848,17 @@ function pushHistory(secs){
 function showFinish(name, secs){
   $('fname').textContent = name;
   $('fdur').textContent = fmt(secs);
+  const ws = weekStats();
+  $('fstats').innerHTML = '<div><b>' + ws.classes + '</b><span>clases esta semana</span></div>'
+    + '<div><b>' + ws.mins + '</b><span>minutos</span></div>'
+    + '<div><b>' + ws.streak + '</b><span>días seguidos</span></div>';
+  $('fprof').innerHTML = (cur && !cur.free) ? miniprofHTML(cur) : '';
+  const sg = suggestedClass();
+  $('fnext').textContent = sg;
+  $('fnext').onclick = () => { const s = GUIDED.find(g => g.name === sg); if(s) openDetail(s); };
   sceneClose();
   show('finish');
+  requestAnimationFrame(() => drawStaticScene('fcv', .985, 2));
 }
 $('fhome').onclick = () => { show('home'); renderHome(); };
 $('fagain').onclick = () => startSession(cur);
@@ -1039,7 +1076,7 @@ function sceneFrame(ts){
   SC.speed += (tgtV - SC.speed)*kk;
   SC.standF += ((SC.stand && running ? 1 : 0) - SC.standF)*(1 - Math.exp(-dt*3));
   SC.cad = (SC.cad||0) + (tgtC - (SC.cad||0))*kk;
-  SC.slope += ((SC.climb ? .17 : 0) - SC.slope)*(1 - Math.exp(-dt*2.5));
+  SC.slope += ((SC.climb ? .17 : (SC.lvl === 1 ? -.055 : 0)) - SC.slope)*(1 - Math.exp(-dt*2.5));
   SC.dist += SC.speed*dt; SC.wheel += SC.speed*dt/32; SC.crank += SC.cad*dt*Math.PI*2;
   // progreso
   let p = 0;
@@ -1054,11 +1091,32 @@ function sceneFrame(ts){
   drawScene(cv.getContext('2d'), w, h, h/240, p, dt);
 }
 
+function drawStaticScene(id, p, lvl){
+  const cv = $(id); if(!cv) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = Math.round(cv.clientWidth*dpr), h = Math.round(cv.clientHeight*dpr);
+  if(!w || !h) return;
+  cv.width = w; cv.height = h;
+  const bak = { speed:SC.speed, slope:SC.slope, lvl:SC.lvl, climb:SC.climb, standF:SC.standF, dist:SC.dist, crank:SC.crank, wheel:SC.wheel, cad:SC.cad };
+  SC.speed = 0; SC.slope = 0; SC.lvl = lvl; SC.climb = false; SC.standF = 0; SC.dist = 120; SC.crank = .55; SC.wheel = .4; SC.cad = 0;
+  drawScene(cv.getContext('2d'), w, h, h/240, p, 0);
+  Object.assign(SC, bak);
+}
+let rszT = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(rszT);
+  rszT = setTimeout(() => {
+    if(!$('home').classList.contains('hidden')) drawStaticScene('hcv', .14, 2);
+    if(!$('finish').classList.contains('hidden')) drawStaticScene('fcv', .985, 2);
+  }, 150);
+});
+
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
 renderHome();
+requestAnimationFrame(() => drawStaticScene('hcv', .14, 2));
 </script>
 </body>
 </html>
