@@ -62,6 +62,26 @@ details.card[open] summary::after{ transform:rotate(180deg); }
 details.card .body{ padding:0 16px 14px; }
 .opt{ display:flex; align-items:center; gap:10px; padding:9px 0; font-size:14px; cursor:pointer; }
 .opt input{ width:22px; height:22px; accent-color:var(--yel); }
+.stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 18px; }
+.stats > div{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 10px; text-align:center; }
+.stats b{ display:block; font-size:22px; font-weight:800; }
+.stats span{ font-size:11px; color:var(--mut); }
+.hchart{ display:flex; gap:6px; align-items:flex-end; height:64px; margin:0 0 18px; }
+.hchart .hb{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.hchart .hbar{ width:100%; border-radius:6px 6px 3px 3px; background:var(--acc); min-height:3px; opacity:.85; }
+.hchart .hbar.zero{ background:var(--line); opacity:.5; }
+.hchart .hl{ font-size:10px; color:var(--mut); }
+.sug{ display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px; background:var(--acc); color:#14110a; font-size:10px; font-weight:800; letter-spacing:.03em; vertical-align:2px; }
+.segicon{ font-size:26px; line-height:1; margin:2px 0 6px; min-height:30px; }
+#time.endpulse{ color:var(--red); animation:endp .5s ease-in-out infinite alternate; }
+@keyframes endp{ from{ transform:scale(1); } to{ transform:scale(1.08); } }
+#paused{ position:fixed; inset:0; z-index:60; background:rgba(10,9,7,.82); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; }
+#paused .pbox{ text-align:center; width:min(320px,86vw); }
+#paused h2{ margin:0 0 6px; font-size:26px; }
+#paused .ptime{ font-size:44px; font-weight:800; font-variant-numeric:tabular-nums; }
+#paused .plbl{ color:var(--mut); font-size:13px; margin:2px 0 20px; }
+#paused .cta{ width:100%; margin-bottom:10px; }
+#paused .cta2{ width:100%; }
 .note{ color:var(--mut); font-size:12px; line-height:1.55; margin-top:10px; }
 .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 10px; }
 .chip{ background:transparent; color:var(--txt); border:1px solid var(--line2); border-radius:999px; padding:8px 12px; min-height:40px; font-size:12px; }
@@ -150,6 +170,12 @@ input.num{ width:60px; text-align:center; }
     <div class='sub'>Tus clases de bici estática, guiadas por voz. La intensidad la marcas tú o tu plan.</div>
   </header>
 
+  <div class='stats hidden' id='stats'>
+    <div><b id='stclasses'>0</b><span>clases esta semana</span></div>
+    <div><b id='stmins'>0</b><span>minutos</span></div>
+    <div><b id='stracha'>0</b><span>días seguidos</span></div>
+  </div>
+
   <div class='sect'>Clases guiadas</div>
   <div id='classes'></div>
 
@@ -173,6 +199,7 @@ input.num{ width:60px; text-align:center; }
     <div class='body'>
       <label class='opt'><input type='checkbox' id='standcb'> Mi bici permite pedalear de pie y quiero esos avisos</label>
       <label class='opt'><input type='checkbox' id='scenecb'> Mostrar ciclista y paisaje animados durante la sesión</label>
+      <label class='opt'><input type='checkbox' id='haptcb'> Vibrar el móvil al cambiar de tramo y al terminar</label>
       <div class='note'>El ciclista y el paisaje son una animación que sigue tu plan (ritmo, subidas, avance de la sesión). No miden tu pedaleo, tu velocidad ni tu pulso.</div>
       <div class='sect' style='margin:14px 2px 6px'>Voz</div>
       <div class='chips' id='voices'></div>
@@ -184,6 +211,8 @@ input.num{ width:60px; text-align:center; }
   </details>
 
   <div id='histwrap' class='hidden'>
+    <div class='sect'>Últimos 7 días</div>
+    <div class='hchart' id='hchart'></div>
     <div class='sect'>Historial</div>
     <div class='hist' id='hist'></div>
   </div>
@@ -221,6 +250,7 @@ input.num{ width:60px; text-align:center; }
     <div class='remtot' id='remtot'></div>
   </div>
   <div class='runbody'>
+    <div class='segicon' id='segicon'></div>
     <div class='segname' id='segname'></div>
     <div class='segnext' id='segnext'></div>
     <div class='time' id='time'>00:00</div>
@@ -265,6 +295,14 @@ input.num{ width:60px; text-align:center; }
 
 <div id='cdown' class='hidden'><div class='n' id='cdownn'>3</div></div>
 
+<div id='paused' class='hidden'><div class='pbox'>
+  <h2>En pausa</h2>
+  <div class='ptime' id='ptime'></div>
+  <div class='plbl'>pedaleados</div>
+  <button class='cta' id='resume'>Reanudar</button>
+  <button class='cta2' id='pquit'>Terminar</button>
+</div></div>
+
 <script>
 const $ = id => document.getElementById(id);
 const fmt = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
@@ -297,11 +335,18 @@ const CUE_SIENTATE = 'Siéntate con suavidad si estabas de pie. Sigue a ritmo mo
 const CUE_POSTURA = 'Si quieres, cambia de postura treinta segundos. Levántate solo si tu bici lo permite y con soporte de resistencia; si no, sigue sentado.';
 const CUE_CALMA = 'Siéntate con suavidad si estabas de pie. Baja la resistencia y el ritmo poco a poco, sin detenerte de golpe. Si notas dolor, mareo o malestar inusual, para el ejercicio.';
 const CUE_SENTADO30 = 'Sigue sentado. Mantén el ritmo y la resistencia; treinta segundos.';
+const CUE_PICO30 = 'Sentado. Treinta segundos fuertes, sin ir a tope; acelera solo si mantienes el control y no rebotas.';
+const CUE_RECUPERA_S = 'Siéntate si estabas de pie. Baja la resistencia y afloja el ritmo; recupera pedaleando suave.';
 const GUIDED = [
  { name:'Suave · 20 min', builtin:true, lvl:1, desc:'Continua y tranquila, todo sentado', segs:[
    G('Calentamiento', 300, 'Empezamos sentados, resistencia baja, subiendo el ritmo poco a poco. Cinco minutos de calentamiento.'),
    G('Cómodo', 600, 'Sentado, ritmo cómodo: puedes mantener una conversación. Diez minutos.'),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
+ },
+ { name:'Recuperación · 15 min', builtin:true, lvl:1, desc:'Suave, para soltar las piernas', segs:[
+   G('Calentamiento', 240, 'Empezamos sentados, resistencia baja, subiendo el ritmo poco a poco. Cuatro minutos.'),
+   G('Suelto', 540, 'Sentado, ritmo cómodo y suelto: puedes mantener una conversación. Nueve minutos.'),
+   G('Vuelta a la calma', 120, 'Bajamos el ritmo poco a poco, sin detenerte de golpe. Dos minutos.')]
  },
  { name:'Intervalos · 25 min', builtin:true, lvl:2, desc:'5× 1 min fuerte sentado + 2 suaves', segs:[
    G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, resistencia baja, en progresión.'),
@@ -312,12 +357,35 @@ const GUIDED = [
    G('Fuerte 5', 60, CUE_FUERTE), G('Suave 5', 120, CUE_RECUPERA),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
+ { name:'Picos · 30 min', builtin:true, lvl:2, desc:'10× 30 s fuerte + 90 s suave, sentado', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, resistencia baja, en progresión.'),
+   G('Pico 1', 30, CUE_PICO30), G('Suave 1', 90, CUE_RECUPERA_S),
+   G('Pico 2', 30, CUE_PICO30), G('Suave 2', 90, CUE_RECUPERA_S),
+   G('Pico 3', 30, CUE_PICO30), G('Suave 3', 90, CUE_RECUPERA_S),
+   G('Pico 4', 30, CUE_PICO30), G('Suave 4', 90, CUE_RECUPERA_S),
+   G('Pico 5', 30, CUE_PICO30), G('Suave 5', 90, CUE_RECUPERA_S),
+   G('Pico 6', 30, CUE_PICO30), G('Suave 6', 90, CUE_RECUPERA_S),
+   G('Pico 7', 30, CUE_PICO30), G('Suave 7', 90, CUE_RECUPERA_S),
+   G('Pico 8', 30, CUE_PICO30), G('Suave 8', 90, CUE_RECUPERA_S),
+   G('Pico 9', 30, CUE_PICO30), G('Suave 9', 90, CUE_RECUPERA_S),
+   G('Pico 10', 30, CUE_PICO30), G('Suave 10', 90, CUE_RECUPERA_S),
+   G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
+ },
  { name:'Colinas · 30 min', builtin:true, lvl:3, desc:'4× subida de 3 min, de pie opcional 30 s', segs:[
    G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
    G('Subida 1', 150, CUE_SUBIDA), G('De pie opcional 1', 30, CUE_DEPIE, true), G('Llano 1', 120, CUE_RECUPERA),
    G('Subida 2', 150, CUE_SUBIDA), G('De pie opcional 2', 30, CUE_DEPIE, true), G('Llano 2', 120, CUE_RECUPERA),
    G('Subida 3', 150, CUE_SUBIDA), G('De pie opcional 3', 30, CUE_DEPIE, true), G('Llano 3', 120, CUE_RECUPERA),
    G('Subida 4', 150, CUE_SUBIDA), G('De pie opcional 4', 30, CUE_DEPIE, true), G('Llano 4', 120, CUE_RECUPERA),
+   G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
+ },
+ { name:'Escalera · 35 min', builtin:true, lvl:3, desc:'Subidas de 2, 3 y 4 min, en escalera', segs:[
+   G('Calentamiento', 300, 'Calentamiento cinco minutos, sentado, suave y progresivo.'),
+   G('Subida de 2 min', 120, CUE_SUBIDA), G('Llano 1', 165, CUE_RECUPERA_S),
+   G('Subida de 3 min', 180, CUE_SUBIDA), G('Llano 2', 165, CUE_RECUPERA_S),
+   G('Subida de 4 min', 240, CUE_SUBIDA), G('Llano 3', 165, CUE_RECUPERA_S),
+   G('Subida de 3 min otra vez', 180, CUE_SUBIDA), G('Llano 4', 165, CUE_RECUPERA_S),
+   G('Subida de 2 min otra vez', 120, CUE_SUBIDA),
    G('Vuelta a la calma', 300, CUE_CALMA + ' Cinco minutos.')]
  },
  { name:'Fondo · 45 min', builtin:true, lvl:2, desc:'Larga y continua, sentada', segs:[
@@ -354,8 +422,8 @@ function segLevel(seg){
   const n = (seg.name||'').toLowerCase();
   if(/de pie/.test(n)) return {lvl:2, climb:true};
   if(/subida|colina|cuesta/.test(n)) return {lvl:3, climb:true};
-  if(/fuerte|sprint|intens|r[aá]pid/.test(n)) return {lvl:3, climb:false};
-  if(/suave|calent|calma|llano|recup|descanso|c[oó]modo/.test(n)) return {lvl:1, climb:false};
+  if(/fuerte|sprint|intens|r[aá]pid|pico/.test(n)) return {lvl:3, climb:false};
+  if(/suave|suelto|calent|calma|llano|recup|descanso|c[oó]modo/.test(n)) return {lvl:1, climb:false};
   return {lvl:2, climb:false};
 }
 const LVLH = {1:34, 2:62, 3:100}, LVLC = {1:'#7bd49a', 2:'#f5c518', 3:'#ff8a65'};
@@ -375,10 +443,11 @@ function shortCue(seg){
   if(/calent/.test(n)) return 'Resistencia baja, subiendo el ritmo poco a poco.';
   if(/de pie/.test(n)) return 'Solo si tu bici lo permite: levántate con suavidad, con soporte de resistencia.';
   if(/subida|colina|cuesta/.test(n)) return 'Sube la resistencia: cuesta exigente pero controlada, pedaleo fluido.';
+  if(/pico/.test(n)) return 'Treinta segundos fuertes, controlados.';
   if(/fuerte|sprint|intens/.test(n)) return 'Un minuto fuerte, sin ir a tope y sin rebotar.';
   if(/suave|llano|recup|descanso/.test(n)) return 'Baja la resistencia y afloja: recupera pedaleando suave.';
   if(/postura/.test(n)) return 'Si quieres, cambia de postura un momento.';
-  if(/continuo|c[oó]modo/.test(n)) return 'Ritmo moderado y constante: puedes hablar pero no cantar.';
+  if(/continuo|c[oó]modo|suelto/.test(n)) return 'Ritmo moderado y constante: puedes hablar pero no cantar.';
   if(/calma/.test(n)) return 'Baja resistencia y ritmo poco a poco, sin detenerte de golpe.';
   return seg.name + '. ' + fmt(seg.secs) + '.';
 }
@@ -390,12 +459,44 @@ function miniprofHTML(s){
     return '<i style="flex:' + g.secs + ' 0 0;height:' + segHeight(r) + '%;background:' + segColor(r) + '"></i>';
   }).join('');
 }
+function weekStats(){
+  const days = {};
+  let classes = 0, mins = 0;
+  const now = new Date();
+  const cutoff = new Date(now); cutoff.setDate(now.getDate() - 6); cutoff.setHours(0,0,0,0);
+  for(const h of history_){
+    const dt = h.ts ? new Date(h.ts) : null;
+    if(dt && dt >= cutoff){ classes++; mins += Math.round(h.secs/60); days[dt.toDateString()] = true; }
+  }
+  let streak = 0;
+  const probe = new Date(now);
+  if(!days[probe.toDateString()]) probe.setDate(probe.getDate() - 1);
+  while(days[probe.toDateString()]){ streak++; probe.setDate(probe.getDate() - 1); }
+  return { classes, mins, streak };
+}
+function suggestedClass(){
+  if(!history_.length) return GUIDED[0].name;
+  const last = history_[0];
+  const lastLvl = sessLevel(GUIDED.find(g => g.name === last.name) || GUIDED[0]);
+  const recentHard = history_.slice(0,3).some(h => sessLevel(GUIDED.find(g => g.name === h.name) || {lvl:1}) >= 3);
+  if(lastLvl >= 3) return 'Recuperación · 15 min';
+  if(recentHard) return 'Suave · 20 min';
+  return lastLvl === 1 ? 'Picos · 30 min' : 'Escalera · 35 min';
+}
 function renderHome(){
+  const ws = weekStats();
+  if(ws.classes || history_.length){
+    $('stats').classList.remove('hidden');
+    $('stclasses').textContent = ws.classes;
+    $('stmins').textContent = ws.mins;
+    $('stracha').textContent = ws.streak;
+  } else $('stats').classList.add('hidden');
+  const sugName = suggestedClass();
   const box = $('classes'); box.innerHTML = '';
   GUIDED.forEach((s) => {
     const b = document.createElement('button'); b.className = 'klass';
     const lv = sessLevel(s);
-    b.innerHTML = '<div class="r1"><div class="nm">' + s.name + '</div><div class="pill">' + fmt(sessDur(s)) + '</div></div>'
+    b.innerHTML = '<div class="r1"><div class="nm">' + s.name + (s.name === sugName ? '<span class="sug">Sugerida hoy</span>' : '') + '</div><div class="pill">' + fmt(sessDur(s)) + '</div></div>'
       + '<div class="ds">' + (s.desc || '') + '</div>'
       + '<div class="r3"><div class="miniprof">' + miniprofHTML(s) + '</div><div class="lvl l' + lv + '">' + LABELS[lv] + '</div></div>';
     b.onclick = () => openDetail(s);
@@ -423,6 +524,29 @@ function renderHome(){
 }
 function renderHist(){
   const h = $('hist');
+  const chart = $('hchart');
+  chart.innerHTML = '';
+  const buckets = [];
+  for(let i=6;i>=0;i--){
+    const dt = new Date(); dt.setDate(dt.getDate()-i);
+    buckets.push({ key: dt.toDateString(), label: dt.toLocaleDateString('es-ES',{weekday:'narrow'}), mins: 0 });
+  }
+  for(const e of history_){
+    if(!e.ts) continue;
+    const k = new Date(e.ts).toDateString();
+    const b = buckets.find(x => x.key === k);
+    if(b) b.mins += Math.round(e.secs/60);
+  }
+  const max = Math.max(15, ...buckets.map(b => b.mins));
+  for(const b of buckets){
+    const cell = document.createElement('div'); cell.className = 'hb';
+    const bar = document.createElement('div');
+    bar.className = 'hbar' + (b.mins ? '' : ' zero');
+    bar.style.height = Math.max(3, Math.round(b.mins/max*48)) + 'px';
+    bar.title = b.mins ? b.mins + ' min' : 'Sin sesión';
+    const lbl = document.createElement('div'); lbl.className = 'hl'; lbl.textContent = b.label;
+    cell.append(bar, lbl); chart.append(cell);
+  }
   if(history_.length){
     $('histwrap').classList.remove('hidden');
     h.innerHTML = '';
@@ -505,6 +629,9 @@ $('savesess').onclick = () => {
 };
 let voiceName = '';
 function logLine(t){ const d=document.createElement('div'); d.textContent=t; $('log').prepend(d); }
+let HAPTIC = localStorage.getItem('cb_haptic') !== '0';
+function buzz(p){ if(HAPTIC && 'vibrate' in navigator){ try{ navigator.vibrate(p); }catch(e){} } }
+function chime(){ beep(); setTimeout(beep, 220); setTimeout(beep, 440); }
 function beep(){
   try{
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
@@ -591,8 +718,10 @@ function tick(){
   if(s.i !== segAnnounced){
     segAnnounced = s.i;
     sceneSeg(s.seg);
+    buzz(60);
     const seated = s.seg.stand && !allowStand();
     $('segname').textContent = seated ? 'Sigue sentado' : s.seg.name;
+    $('segicon').textContent = seated ? '🪑' : (s.seg.stand ? '🧍' : (segLevel(s.seg).climb ? '⛰️' : (segLevel(s.seg).lvl === 3 ? '⚡' : '🚴')));
     const nx = cur.segs[s.i+1];
     const nxName = nx && nx.stand && !allowStand() ? 'Sigue sentado' : (nx ? nx.name : null);
     $('segnext').textContent = nx ? ('Siguiente: ' + nxName + ' · ' + fmt(nx.secs)) : 'Último tramo';
@@ -607,6 +736,7 @@ function tick(){
     else speak('Diez segundos.');
   }
   $('time').textContent = fmt(s.left);
+  $('time').classList.toggle('endpulse', s.left <= 3.5 && s.left > 0);
   $('remtot').textContent = 'Quedan ' + fmt(rem);
   $('fill').style.width = Math.min(100, s.into/s.seg.secs*100) + '%';
 }
@@ -625,6 +755,8 @@ function startSession(s){
   clearInterval(timer);
   $('log').innerHTML = '';
   show('run');
+  $('time').classList.remove('endpulse');
+  $('segicon').textContent = s.free ? '🚴' : '';
   $('segname').textContent = s.free ? 'Libre' : s.name;
   $('segnext').textContent = s.free ? 'Pedalea a tu ritmo' : (s.segs.length + ' tramos · ' + fmt(sessDur(s)));
   $('time').textContent = s.free ? '00:00' : fmt(s.segs[0].secs);
@@ -638,6 +770,7 @@ function start(){
   else reallyStart();
 }
 function reallyStart(){
+  $('paused').classList.add('hidden');
   startTs = Date.now(); running = true;
   $('start').textContent = 'Pausar';
   timer = setInterval(tick, 250); requestWake();
@@ -661,12 +794,17 @@ function stop(manual = true){
   running = false; clearInterval(timer);
   if('speechSynthesis' in window) speechSynthesis.cancel();
   $('start').textContent = 'Reanudar';
-  if(manual) releaseWake();
+  if(manual){
+    releaseWake();
+    $('ptime').textContent = fmt(elapsedBase);
+    $('paused').classList.remove('hidden');
+  }
 }
 function finish(){
   $('test').disabled = false;
   stop(false); done = true;
   releaseWake();
+  chime(); buzz([120, 80, 120]);
   speak('Sesión completada. Buen trabajo.');
   pushHistory(sessDur(cur));
   showFinish(cur.name, sessDur(cur));
@@ -674,7 +812,7 @@ function finish(){
 function pushHistory(secs){
   const d = new Date();
   const ds = d.toLocaleDateString('es-ES', {day:'numeric', month:'short'});
-  history_.unshift({ date: ds, name: cur.name, secs: Math.round(secs) });
+  history_.unshift({ date: ds, ts: d.getTime(), name: cur.name, secs: Math.round(secs) });
   history_ = history_.slice(0,30);
   saveHistory();
 }
@@ -687,8 +825,11 @@ function showFinish(name, secs){
 $('fhome').onclick = () => { show('home'); renderHome(); };
 $('fagain').onclick = () => startSession(cur);
 $('start').onclick = () => running ? stop(true) : start();
+$('resume').onclick = () => start();
+$('pquit').onclick = () => { $('paused').classList.add('hidden'); $('quit').click(); };
 $('quit').onclick = () => {
   $('test').disabled = false;
+  $('paused').classList.add('hidden');
   const t = totalElapsed();
   const wasRunning = running || elapsedBase > 0;
   if(running) stop(true);
@@ -716,6 +857,8 @@ const SC = { dist:0, speed:0, slope:0, wheel:0, crank:0, last:0, raf:0, lvl:2, c
 SC.on = localStorage.getItem('cb_scene') !== '0' && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches && localStorage.getItem('cb_scene') === null);
 $('scenecb').checked = SC.on;
 $('scenecb').onchange = (e) => { SC.on = e.target.checked; localStorage.setItem('cb_scene', SC.on ? '1' : '0'); };
+$('haptcb').checked = HAPTIC;
+$('haptcb').onchange = (e) => { HAPTIC = e.target.checked; localStorage.setItem('cb_haptic', HAPTIC ? '1' : '0'); };
 function sceneSeg(seg){
   const r = seg ? segLevel(seg) : {lvl:2, climb:false};
   SC.lvl = r.lvl; SC.climb = r.climb;
